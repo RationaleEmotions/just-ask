@@ -1,0 +1,36 @@
+{
+  "capabilities": [
+    {
+      "browserName": "firefox",
+      "maxInstances": 5,
+      "seleniumProtocol": "Selenium"
+    },
+    {
+      "browserName": "chrome",
+      "maxInstances": 5,
+      "seleniumProtocol": "Selenium"
+    },
+    {
+      "browserName": "internet explorer",
+      "maxInstances": 1,
+      "seleniumProtocol": "Selenium"
+    }
+  ],
+  "configuration": {
+    "proxy": "com.github.rationaleemotions.proxy.OndemandServerProxy",
+    "maxSession": 5,
+    "port": 5555,
+    "register": true,
+    "registerCycle": 5000,
+    "hub": "http://localhost:4444",
+    "nodeStatusCheckTimeout": 5000,
+    "nodePolling": 5000,
+    "role": "node",
+    "unregisterIfStillDownAfter": 60000,
+    "downPollingLimit": 2,
+    "debug": false,
+    "servlets": [],
+    "withoutServlets": [],
+    "custom": {}
+  }
+}
