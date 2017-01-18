@@ -1,4 +1,4 @@
-package com.github.rationaleemotions.server;
+package com.rationaleemotions.server;
 
 /**
  * Represents the capabilities of a Server [ can be remote or local ]

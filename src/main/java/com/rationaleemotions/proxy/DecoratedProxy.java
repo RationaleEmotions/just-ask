@@ -1,4 +1,4 @@
-package com.github.rationaleemotions.proxy;
+package com.rationaleemotions.proxy;
 
 import com.google.gson.JsonObject;
 import org.openqa.grid.common.RegistrationRequest;

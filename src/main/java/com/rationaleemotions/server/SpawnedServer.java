@@ -1,4 +1,4 @@
-package com.github.rationaleemotions.server;
+package com.rationaleemotions.server;
 
 import org.openqa.grid.common.exception.GridException;
 

@@ -1,6 +1,6 @@
-package com.github.rationaleemotions.proxy;
+package com.rationaleemotions.proxy;
 
-import com.github.rationaleemotions.server.SpawnedServer;
+import com.rationaleemotions.server.SpawnedServer;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import org.openqa.grid.common.RegistrationRequest;

@@ -1,4 +1,4 @@
-package com.github.rationaleemotions.servlets;
+package com.rationaleemotions.servlets;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.IOUtils;
@@ -42,6 +42,7 @@ public class EnrollServlet extends RegistryBasedServlet {
 
     private void addProxy() {
         //After the construction is finished, lets wrap up.
+
         HttpClientFactory httpClientFactory = new HttpClientFactory();
         try {
             final int port = getRegistry().getHub().getConfiguration().port;
