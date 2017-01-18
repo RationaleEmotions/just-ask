@@ -1,5 +1,9 @@
 language: java
-jdk: openjdk7
+jdk:
+- oraclejdk8
+notifications:
+  email:
+  - krishnan.mahadevan1978@gmail.com
 branches: 
 only:
 - master
