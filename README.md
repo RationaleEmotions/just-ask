@@ -1,3 +1,5 @@
+![Build Status](https://travis-ci.org/RationaleEmotions/just-ask.svg?branch=master)
+
 # just-ask
 
 As the name suggests, this library is eventually going to end up becoming a simple prototype that can be enhanced to 

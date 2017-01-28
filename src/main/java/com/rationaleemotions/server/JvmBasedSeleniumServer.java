@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -51,14 +52,15 @@ class JvmBasedSeleniumServer implements ServerTraits {
     public int startServer() throws ServerException {
         port = PortProber.findFreePort();
         String[] args = getArgs(port);
-        LOG.info("Spawning a Selenium server using the arguments [" + Arrays.toString(args) + "]");
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info(String.format("Spawning a Selenium server using the arguments [%s]", Arrays.toString(args)));
+        }
         ProcessBuilder pb = new ProcessBuilder(getArgs(port));
         try {
             this.process = pb.start();
             do {
-                TimeUnit.SECONDS.sleep(15);
+                TimeUnit.SECONDS.sleep(1);
             } while (! isServerRunning());
-            LOG.warning("***Server started**** on [" + port + "]");
             return port;
         } catch (Exception e) {
             throw new ServerException(e.getMessage(), e);
@@ -87,6 +89,7 @@ class JvmBasedSeleniumServer implements ServerTraits {
         if (process != null) {
             process.destroyForcibly();
             LOG.warning("***Server shutdown****");
+            process = null;
         }
     }
 

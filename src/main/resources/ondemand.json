@@ -2,23 +2,20 @@
   "capabilities": [
     {
       "browserName": "firefox",
-      "maxInstances": 5,
-      "seleniumProtocol": "Selenium"
+      "maxInstances": 1
     },
     {
       "browserName": "chrome",
-      "maxInstances": 5,
-      "seleniumProtocol": "Selenium"
+      "maxInstances": 1
     },
     {
       "browserName": "internet explorer",
-      "maxInstances": 1,
-      "seleniumProtocol": "Selenium"
+      "maxInstances": 1
     }
   ],
   "configuration": {
-    "proxy": "com.github.rationaleemotions.proxy.OndemandServerProxy",
-    "maxSession": 5,
+    "proxy": "com.rationaleemotions.proxy.GhostProxy",
+    "maxSession": 1,
     "port": 5555,
     "register": true,
     "registerCycle": 5000,

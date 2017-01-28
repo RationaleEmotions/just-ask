@@ -18,7 +18,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 /**
@@ -42,6 +44,7 @@ public class EnrollServlet extends RegistryBasedServlet {
 
     private void addProxy() {
         //After the construction is finished, lets wrap up.
+        int status;
 
         HttpClientFactory httpClientFactory = new HttpClientFactory();
         try {
@@ -49,24 +52,24 @@ public class EnrollServlet extends RegistryBasedServlet {
             final URL registration = new URL("http://localhost:" + port + "/grid/register");
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST",
                 registration.toExternalForm());
-            request.setEntity(new StringEntity(getJson()));
+            request.setEntity(getJsonAsEntity());
             HttpHost host = new HttpHost(registration.getHost(), registration.getPort());
             HttpClient client = httpClientFactory.getHttpClient();
             HttpResponse response = client.execute(host, request);
-            Preconditions.checkState(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
+            status = response.getStatusLine().getStatusCode();
+
         } catch (IOException | GridConfigurationException e) {
             throw new GridException(e.getMessage(), e);
         } finally {
             httpClientFactory.close();
         }
+        Preconditions.checkState(status == HttpStatus.SC_OK, "There was a problem in hooking in the ghost node.");
     }
 
-    private String getJson() {
+    private StringEntity getJsonAsEntity() throws UnsupportedEncodingException {
         try {
-            return IOUtils
-                .toString(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream
-                    (""
-                        + "ondemand.json")));
+            InputStream isr = Thread.currentThread().getContextClassLoader().getResourceAsStream("ondemand.json");
+            return new StringEntity(IOUtils.toString(new InputStreamReader(isr)));
         } catch (IOException e) {
             throw new GridException(e.getMessage(), e);
         }
