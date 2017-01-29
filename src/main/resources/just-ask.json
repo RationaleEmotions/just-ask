@@ -1,0 +1,11 @@
+{
+  "dockerHost": "192.168.43.130",
+  "dockerPort": "2375",
+  "localhost" : "0.0.0.0",
+  "dockerImagePort" : "4444",
+  "maxSession" : 5,
+  "images": [
+    "selenium/standalone-chrome:3.0.1",
+    "selenium/standalone-firefox:3.0.1"
+  ]
+}

@@ -1,6 +1,11 @@
 package com.rationaleemotions.servlets;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.rationaleemotions.config.ConfigReader;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -69,7 +74,16 @@ public class EnrollServlet extends RegistryBasedServlet {
     private StringEntity getJsonAsEntity() throws UnsupportedEncodingException {
         try {
             InputStream isr = Thread.currentThread().getContextClassLoader().getResourceAsStream("ondemand.json");
-            return new StringEntity(IOUtils.toString(new InputStreamReader(isr)));
+            String string = IOUtils.toString(new InputStreamReader(isr));
+            JsonObject ondemand = new JsonParser().parse(string).getAsJsonObject();
+            int maxSession =ConfigReader.getInstance().getMaxSession();
+            JsonArray capsArray = ondemand.get("capabilities").getAsJsonArray();
+            for (int i=0; i < capsArray.size(); i++) {
+                capsArray.get(i).getAsJsonObject().addProperty("maxInstances", maxSession);
+            }
+            ondemand.get("configuration").getAsJsonObject().addProperty("maxSession", maxSession);
+            string = ondemand.toString();
+            return new StringEntity(string);
         } catch (IOException e) {
             throw new GridException(e.getMessage(), e);
         }

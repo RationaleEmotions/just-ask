@@ -3,6 +3,8 @@ package com.rationaleemotions.server;
 import org.openqa.grid.common.exception.GridException;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SpawnedServer {
@@ -11,11 +13,11 @@ public class SpawnedServer {
 
 
     private static final String JVM_ARG = "server.impl";
-    private static final String SERVER_IMPL = System.getProperty(JVM_ARG, JvmBasedSeleniumServer.class
+    private static final String SERVER_IMPL = System.getProperty(JVM_ARG, DockerBasedSeleniumServer.class
         .getCanonicalName());
     private static final Logger LOG = Logger.getLogger(Marker.class.getEnclosingClass().getName());
 
-    private ServerTraits server;
+    private AbstractSeleniumServer server;
 
     private SpawnedServer() {
         //We have a factory method. Hiding the constructor.
@@ -24,42 +26,57 @@ public class SpawnedServer {
     public static SpawnedServer spawnInstance() {
 
         SpawnedServer server = new SpawnedServer();
+        AtomicInteger attempts = new AtomicInteger(0);
         try {
             server.server = newInstance();
             int port = server.server.startServer();
+
             do {
-                TimeUnit.SECONDS.sleep(15);
-            } while (! server.server.isServerRunning());
-            LOG.info("***Server started on [" + port + "]****");
+                TimeUnit.SECONDS.sleep(2);
+            } while ((! server.server.isServerRunning()) || (attempts.incrementAndGet() <= 5));
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.warning(String.format("***Server started on [%d]****", port));
+            }
             return server;
         } catch (Exception e) {
             throw new GridException(e.getMessage(), e);
         }
     }
 
+    public String getHost() {
+        return server.getHost();
+    }
+
     public int getPort() {
         return server.getPort();
     }
 
-    private static ServerTraits newInstance()
+    private static AbstractSeleniumServer newInstance()
         throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        return (ServerTraits) getServerClass().newInstance();
+        return (AbstractSeleniumServer) getServerClass().newInstance();
     }
 
     private static Class<?> getServerClass() throws ClassNotFoundException {
         Class<?> clazz = Class.forName(SERVER_IMPL);
-        if (ServerTraits.class.isAssignableFrom(clazz)) {
+        LOG.info("Working with the implementation : [" + clazz.getCanonicalName() + "].");
+        if (AbstractSeleniumServer.class.isAssignableFrom(clazz)) {
             return clazz;
         }
-        throw new IllegalStateException(SERVER_IMPL + " does not implement " + ServerTraits.class.getCanonicalName());
+        throw new IllegalStateException(SERVER_IMPL + " does not extend " + AbstractSeleniumServer.class
+            .getCanonicalName());
     }
 
     public void shutdown() {
         try {
             server.shutdownServer();
+            LOG.warning("***Server running on [" + getPort() + "] has been stopped****");
         } catch (Exception e) {
             LOG.warning(e.getMessage());
         }
     }
 
+    @Override
+    public String toString() {
+        return "SpawnedServer[" + getHost() + ":" + getPort() + "]";
+    }
 }

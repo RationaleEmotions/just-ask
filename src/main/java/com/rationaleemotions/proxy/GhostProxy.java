@@ -2,6 +2,7 @@ package com.rationaleemotions.proxy;
 
 import com.google.common.collect.MapMaker;
 import com.google.gson.JsonObject;
+import com.rationaleemotions.config.ConfigReader;
 import com.rationaleemotions.server.SpawnedServer;
 import org.openqa.grid.common.RegistrationRequest;
 import org.openqa.grid.common.SeleniumProtocol;
@@ -67,6 +68,7 @@ public class GhostProxy extends DefaultRemoteProxy {
         }
 
         this.testSlots = Collections.unmodifiableList(slots);
+        LOG.info("Maximum sessions supported : " + ConfigReader.getInstance().getMaxSession());
     }
 
     @Override
@@ -76,7 +78,8 @@ public class GhostProxy extends DefaultRemoteProxy {
 
     @Override
     public TestSession getNewSession(Map<String, Object> requestedCapability) {
-        if (counter.getAndIncrement() == 2) {
+
+        if (counter.get() > ConfigReader.getInstance().getMaxSession()) {
             LOG.info("Waiting for remote nodes to be available");
             return null;
         }
@@ -124,7 +127,7 @@ public class GhostProxy extends DefaultRemoteProxy {
             SeleniumBasedRequest.createFromRequest(request, getRegistry()).extractRequestType();
         if (type == STOP_SESSION) {
             stopServerForTestSession(session);
-            counter.decrementAndGet();
+            LOG.info("Counter value after decrementing : " + counter.decrementAndGet());
         }
     }
 
@@ -172,11 +175,12 @@ public class GhostProxy extends DefaultRemoteProxy {
     private void startServerForTestSession(TestSession session) {
         try {
             SpawnedServer server = SpawnedServer.spawnInstance();
-            String key = "http://localhost:" + server.getPort();
+            String key = "http://" + server.getHost() + ":" + server.getPort();
             URL url = new URL(key);
             servers.put(key, server);
             ((ProxiedTestSlot)session.getSlot()).setRemoteURL(url);
             LOG.info("Forwarding session to :" + session.getSlot().getRemoteURL());
+            LOG.info ("Counter value after incrementing : " + counter.incrementAndGet());
         } catch (Exception e) {
             throw new GridException(e.getMessage(), e);
         }
@@ -185,9 +189,7 @@ public class GhostProxy extends DefaultRemoteProxy {
     private void stopServerForTestSession(TestSession session) {
         URL url = session.getSlot().getRemoteURL();
         String key = String.format("%s://%s:%d", url.getProtocol(), url.getHost(), url.getPort());
-        if (LOG.isLoggable(Level.WARNING)) {
-            LOG.warning(String.format("**** Key ****%s", key));
-        }
+        LOG.info("Obtained Key is : " + key);
         SpawnedServer localServer = servers.get(key);
         if (localServer != null) {
             localServer.shutdown();
