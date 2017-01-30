@@ -6,7 +6,9 @@ import com.google.gson.stream.JsonReader;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,17 +44,6 @@ public class ConfigReader {
     }
 
     /**
-     * @return - The list of images that are to be downloaded. This is how the system would know what images are to
-     * be downloaded.
-     */
-    public List<String> getImagesToDownload() {
-        if (configuration == null) {
-            return null;
-        }
-        return configuration.getImages();
-    }
-
-    /**
      * @return - The docker host.
      */
     public String getDockerHost() {
@@ -84,7 +75,17 @@ public class ConfigReader {
     }
 
     /**
-     *
+     * @return - The browser to target (target could for e.g., be docker image) mapping.
+     */
+    public Map<String, String> getMapping() {
+        Map<String, String> mapping = new HashMap<>();
+        for (MappingInfo each : configuration.getMapping()) {
+            mapping.put(each.getBrowser(), each.getTarget());
+        }
+        return mapping;
+    }
+
+    /**
      * @return - How many number of sessions are to be honoured at any given point in time.
      * This kind of resembles the threshold value after which new session requests would be put into the
      * Hub's wait queue.
@@ -119,13 +120,9 @@ public class ConfigReader {
         private String dockerHost;
         private String localhost;
         private String dockerPort;
-        private List<String> images;
         private String dockerImagePort;
         private int maxSession;
-
-        public List<String> getImages() {
-            return images;
-        }
+        private List<MappingInfo> mapping;
 
         public String getDockerPort() {
             return dockerPort;
@@ -147,16 +144,34 @@ public class ConfigReader {
             return maxSession;
         }
 
+        public List<MappingInfo> getMapping() {
+            return mapping;
+        }
+
         @Override
         public String toString() {
             return "Configuration{" +
                 "dockerHost='" + dockerHost + '\'' +
                 ", localhost='" + localhost + '\'' +
                 ", dockerPort='" + dockerPort + '\'' +
-                ", images=" + images +
                 ", dockerImagePort='" + dockerImagePort + '\'' +
                 ", maxSession=" + maxSession +
+                ", mapping=" + mapping +
                 '}';
+        }
+    }
+
+
+    private static class MappingInfo {
+        private String browser;
+        private String target;
+
+        String getBrowser() {
+            return browser;
+        }
+
+        String getTarget() {
+            return target;
         }
     }
 }

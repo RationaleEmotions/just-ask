@@ -1,4 +1,4 @@
-package com.rationaleemotions.proxy;
+package org.openqa.grid.internal;
 
 import org.openqa.grid.common.SeleniumProtocol;
 import org.openqa.grid.common.exception.GridException;
@@ -14,22 +14,31 @@ import java.util.Map;
  */
 public class ProxiedTestSlot extends TestSlot {
     private URL remoteURL;
-    ProxiedTestSlot(RemoteProxy proxy, SeleniumProtocol protocol,
+    public ProxiedTestSlot(RemoteProxy proxy, SeleniumProtocol protocol,
         String path, Map<String, Object> capabilities) {
         super(proxy, protocol, path, capabilities);
     }
 
     @Override
     public URL getRemoteURL() {
+        boolean isRemoteURLSet = remoteURL != null;
         String u = remoteURL + getPath();
         try {
             return new URL(u);
         } catch (MalformedURLException e) {
-            throw new GridException("Configuration error for the node." + u + " isn't a valid URL");
+            if (isRemoteURLSet) {
+                throw new GridException("Configuration error for the node." + u + " isn't a valid URL");
+            }
         }
+        return null;
     }
 
-    void setRemoteURL(URL remoteURL) {
+    @Override
+    boolean matches(Map<String, Object> desiredCapabilities) {
+        return true;
+    }
+
+    public void setRemoteURL(URL remoteURL) {
         this.remoteURL = remoteURL;
     }
 }

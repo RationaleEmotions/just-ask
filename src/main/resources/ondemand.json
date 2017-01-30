@@ -2,15 +2,13 @@
   "capabilities": [
     {
       "browserName": "firefox",
-      "maxInstances": 1
+      "maxInstances": 1,
+      "platform" : "ANY"
     },
     {
       "browserName": "chrome",
-      "maxInstances": 1
-    },
-    {
-      "browserName": "internet explorer",
-      "maxInstances": 1
+      "maxInstances": 1,
+      "platform" : "ANY"
     }
   ],
   "configuration": {

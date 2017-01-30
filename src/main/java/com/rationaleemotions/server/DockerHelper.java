@@ -10,10 +10,7 @@ import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.*;
 import org.openqa.selenium.net.PortProber;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -119,7 +116,7 @@ class DockerHelper {
             return;
         }
         LOG.warning("Commencing download of images.");
-        List<String> images = getInstance().getImagesToDownload();
+        Collection<String> images = getInstance().getMapping().values();
 
         ProgressHandler handler = new LoggingBuildHandler();
         for (String image : images) {
@@ -128,7 +125,7 @@ class DockerHelper {
     }
 
     private static DockerClient.ListImagesParam[] createParams() {
-        List<String> images = getInstance().getImagesToDownload();
+        Collection<String> images = getInstance().getMapping().values();
         DockerClient.ListImagesParam[] imagesParams = new DockerClient.ListImagesParam[images.size()];
         int i = 0;
         for (String image : images) {

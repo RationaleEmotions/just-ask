@@ -1,7 +1,6 @@
 package com.rationaleemotions.server;
 
-import org.openqa.grid.common.exception.GridException;
-
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -23,24 +22,19 @@ public class SpawnedServer {
         //We have a factory method. Hiding the constructor.
     }
 
-    public static SpawnedServer spawnInstance() {
-
+    public static SpawnedServer spawnInstance(Map<String, Object> requestedCapabilities) throws Exception {
         SpawnedServer server = new SpawnedServer();
         AtomicInteger attempts = new AtomicInteger(0);
-        try {
-            server.server = newInstance();
-            int port = server.server.startServer();
+        server.server = newInstance();
+        int port = server.server.startServer(requestedCapabilities);
 
-            do {
-                TimeUnit.SECONDS.sleep(2);
-            } while ((! server.server.isServerRunning()) || (attempts.incrementAndGet() <= 5));
-            if (LOG.isLoggable(Level.WARNING)) {
-                LOG.warning(String.format("***Server started on [%d]****", port));
-            }
-            return server;
-        } catch (Exception e) {
-            throw new GridException(e.getMessage(), e);
+        do {
+            TimeUnit.SECONDS.sleep(2);
+        } while ((! server.server.isServerRunning()) || (attempts.incrementAndGet() <= 5));
+        if (LOG.isLoggable(Level.WARNING)) {
+            LOG.warning(String.format("***Server started on [%d]****", port));
         }
+        return server;
     }
 
     public String getHost() {

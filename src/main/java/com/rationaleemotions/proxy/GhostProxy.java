@@ -7,12 +7,14 @@ import com.rationaleemotions.server.SpawnedServer;
 import org.openqa.grid.common.RegistrationRequest;
 import org.openqa.grid.common.SeleniumProtocol;
 import org.openqa.grid.common.exception.GridException;
+import org.openqa.grid.internal.ProxiedTestSlot;
 import org.openqa.grid.internal.Registry;
 import org.openqa.grid.internal.TestSession;
 import org.openqa.grid.internal.TestSlot;
 import org.openqa.grid.selenium.proxy.DefaultRemoteProxy;
 import org.openqa.grid.web.servlet.handler.RequestType;
 import org.openqa.grid.web.servlet.handler.SeleniumBasedRequest;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.openqa.grid.common.RegistrationRequest.*;
+import static org.openqa.grid.web.servlet.handler.RequestType.START_SESSION;
 import static org.openqa.grid.web.servlet.handler.RequestType.STOP_SESSION;
 
 /**
@@ -32,6 +35,8 @@ import static org.openqa.grid.web.servlet.handler.RequestType.STOP_SESSION;
  */
 public class GhostProxy extends DefaultRemoteProxy {
     private final AtomicInteger counter = new AtomicInteger(1);
+
+
     private interface Marker {
     }
 
@@ -83,31 +88,14 @@ public class GhostProxy extends DefaultRemoteProxy {
             LOG.info("Waiting for remote nodes to be available");
             return null;
         }
-        if (isDown()) {
-            return null;
-        }
 
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine(String.format("Trying to create a new session on node %s", this));
         }
 
-        if (!hasCapability(requestedCapability)) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(String.format("Node %s has no matching capability", this));
-            }
-            return null;
-        }
-        // any slot left at all?
-        if (getTotalUsed() >= config.maxSession) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(String.format("Node %s has no free slots", this));
-            }
-            return null;
-        }
         // any slot left for the given app ?
         for (TestSlot testslot : getTestSlots()) {
             TestSession session = testslot.getNewSession(requestedCapability);
-
             if (session != null) {
                 return session;
             }
@@ -116,15 +104,23 @@ public class GhostProxy extends DefaultRemoteProxy {
     }
 
     @Override
-    public void beforeSession(TestSession session) {
-        startServerForTestSession(session);
+    public void beforeCommand(TestSession session, HttpServletRequest request, HttpServletResponse response) {
+        RequestType type = identifyRequestType(request);
+        if (type == START_SESSION) {
+            if (processTestSession(session)) {
+                startServerForTestSession(session);
+            } else {
+                throw new IllegalStateException("Cannot create a session due to missing target mapping. "
+                    + "Available mappings are " + ConfigReader.getInstance().getMapping());
+            }
+        }
+        super.beforeCommand(session, request, response);
     }
 
     @Override
     public void afterCommand(TestSession session, HttpServletRequest request, HttpServletResponse response) {
         super.afterCommand(session, request, response);
-        RequestType type =
-            SeleniumBasedRequest.createFromRequest(request, getRegistry()).extractRequestType();
+        RequestType type = identifyRequestType(request);
         if (type == STOP_SESSION) {
             stopServerForTestSession(session);
             if (LOG.isLoggable(Level.INFO)) {
@@ -143,6 +139,10 @@ public class GhostProxy extends DefaultRemoteProxy {
         return new JsonObject();
     }
 
+    private RequestType identifyRequestType(HttpServletRequest request) {
+        return SeleniumBasedRequest.createFromRequest(request, getRegistry()).extractRequestType();
+    }
+
     private String getPath(DesiredCapabilities capability) {
         String type = (String) capability.getCapability(PATH);
         if (type == null) {
@@ -156,6 +156,12 @@ public class GhostProxy extends DefaultRemoteProxy {
             }
         }
         return type;
+    }
+
+    private boolean processTestSession(TestSession session) {
+        Map<String, Object> requestedCapabilities = session.getRequestedCapabilities();
+        String browser = (String) requestedCapabilities.get(CapabilityType.BROWSER_NAME);
+        return ConfigReader.getInstance().getMapping().containsKey(browser);
     }
 
     private SeleniumProtocol getProtocol(DesiredCapabilities capability) {
@@ -176,11 +182,11 @@ public class GhostProxy extends DefaultRemoteProxy {
 
     private void startServerForTestSession(TestSession session) {
         try {
-            SpawnedServer server = SpawnedServer.spawnInstance();
+            SpawnedServer server = SpawnedServer.spawnInstance(session.getRequestedCapabilities());
             String key = "http://" + server.getHost() + ":" + server.getPort();
             URL url = new URL(key);
             servers.put(key, server);
-            ((ProxiedTestSlot)session.getSlot()).setRemoteURL(url);
+            ((ProxiedTestSlot) session.getSlot()).setRemoteURL(url);
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.info(String.format("Forwarding session to :%s", session.getSlot().getRemoteURL()));
                 LOG.info(String.format("Counter value after incrementing : %d", counter.incrementAndGet()));

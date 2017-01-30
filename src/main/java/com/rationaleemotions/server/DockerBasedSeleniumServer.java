@@ -2,6 +2,9 @@ package com.rationaleemotions.server;
 
 import com.rationaleemotions.config.ConfigReader;
 import com.spotify.docker.client.exceptions.DockerException;
+import org.openqa.selenium.remote.CapabilityType;
+
+import java.util.Map;
 
 /**
  * Represents a {@link ISeleniumServer} implementation that is backed by a docker container which executes the
@@ -10,12 +13,13 @@ import com.spotify.docker.client.exceptions.DockerException;
  */
 class DockerBasedSeleniumServer implements ISeleniumServer {
     private DockerHelper.ContainerInfo containerInfo;
-    private static final String SELENIUM_STANDALONE_CHROME = "selenium/standalone-chrome:3.0.1";
 
     @Override
-    public int startServer() throws ServerException {
+    public int startServer(Map<String, Object> requestedCapabilities) throws ServerException {
         try {
-            containerInfo = DockerHelper.startContainerFor(SELENIUM_STANDALONE_CHROME);
+            String browser = (String) requestedCapabilities.get(CapabilityType.BROWSER_NAME);
+            String image = ConfigReader.getInstance().getMapping().get(browser);
+            containerInfo = DockerHelper.startContainerFor(image);
             return containerInfo.getPort();
         } catch (DockerException | InterruptedException e) {
             throw new ServerException(e.getMessage(), e);

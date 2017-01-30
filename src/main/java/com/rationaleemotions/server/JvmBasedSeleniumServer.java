@@ -5,6 +5,7 @@ import org.openqa.selenium.net.PortProber;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,7 +41,7 @@ class JvmBasedSeleniumServer implements ISeleniumServer {
     }
 
     @Override
-    public int startServer() throws ServerException {
+    public int startServer(Map<String, Object> requestedCapabilities) throws ServerException {
         port = PortProber.findFreePort();
         String[] args = getArgs(port);
         if (LOG.isLoggable(Level.INFO)) {
