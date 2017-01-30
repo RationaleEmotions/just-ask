@@ -17,7 +17,7 @@ public class SpawnedServer {
         .getCanonicalName());
     private static final Logger LOG = Logger.getLogger(Marker.class.getEnclosingClass().getName());
 
-    private AbstractSeleniumServer server;
+    private ISeleniumServer server;
 
     private SpawnedServer() {
         //We have a factory method. Hiding the constructor.
@@ -51,18 +51,18 @@ public class SpawnedServer {
         return server.getPort();
     }
 
-    private static AbstractSeleniumServer newInstance()
+    private static ISeleniumServer newInstance()
         throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        return (AbstractSeleniumServer) getServerClass().newInstance();
+        return (ISeleniumServer) getServerClass().newInstance();
     }
 
     private static Class<?> getServerClass() throws ClassNotFoundException {
         Class<?> clazz = Class.forName(SERVER_IMPL);
         LOG.info("Working with the implementation : [" + clazz.getCanonicalName() + "].");
-        if (AbstractSeleniumServer.class.isAssignableFrom(clazz)) {
+        if (ISeleniumServer.class.isAssignableFrom(clazz)) {
             return clazz;
         }
-        throw new IllegalStateException(SERVER_IMPL + " does not extend " + AbstractSeleniumServer.class
+        throw new IllegalStateException(SERVER_IMPL + " does not extend " + ISeleniumServer.class
             .getCanonicalName());
     }
 

@@ -9,10 +9,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Represents a {@link AbstractSeleniumServer} implementation that is backed by a new JVM which executes the
+ * Represents a {@link ISeleniumServer} implementation that is backed by a new JVM which executes the
  * selenium server as a separate process.
  */
-class JvmBasedSeleniumServer extends AbstractSeleniumServer {
+class JvmBasedSeleniumServer implements ISeleniumServer {
     private static final Logger LOG = Logger.getLogger(Marker.class.getEnclosingClass().getName());
     private static final String JAVA = System.getProperty("java.home") + File.separator + "bin" + File.separator +
         "java";

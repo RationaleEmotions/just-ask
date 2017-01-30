@@ -127,7 +127,9 @@ public class GhostProxy extends DefaultRemoteProxy {
             SeleniumBasedRequest.createFromRequest(request, getRegistry()).extractRequestType();
         if (type == STOP_SESSION) {
             stopServerForTestSession(session);
-            LOG.info("Counter value after decrementing : " + counter.decrementAndGet());
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info(String.format("Counter value after decrementing : %d", counter.decrementAndGet()));
+            }
         }
     }
 
@@ -179,8 +181,10 @@ public class GhostProxy extends DefaultRemoteProxy {
             URL url = new URL(key);
             servers.put(key, server);
             ((ProxiedTestSlot)session.getSlot()).setRemoteURL(url);
-            LOG.info("Forwarding session to :" + session.getSlot().getRemoteURL());
-            LOG.info ("Counter value after incrementing : " + counter.incrementAndGet());
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info(String.format("Forwarding session to :%s", session.getSlot().getRemoteURL()));
+                LOG.info(String.format("Counter value after incrementing : %d", counter.incrementAndGet()));
+            }
         } catch (Exception e) {
             throw new GridException(e.getMessage(), e);
         }
@@ -189,7 +193,6 @@ public class GhostProxy extends DefaultRemoteProxy {
     private void stopServerForTestSession(TestSession session) {
         URL url = session.getSlot().getRemoteURL();
         String key = String.format("%s://%s:%d", url.getProtocol(), url.getHost(), url.getPort());
-        LOG.info("Obtained Key is : " + key);
         SpawnedServer localServer = servers.get(key);
         if (localServer != null) {
             localServer.shutdown();

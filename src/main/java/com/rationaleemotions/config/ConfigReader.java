@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * A singleton instance that works as a configuration data source.
  */
 public class ConfigReader {
     private static final String CONFIG = "just-ask.json";
@@ -24,11 +24,16 @@ public class ConfigReader {
 
     private static final Logger LOG = Logger.getLogger(Marker.class.getEnclosingClass().getName());
 
-
+    /**
+     * @return - A {@link ConfigReader} that represents the configuration.
+     */
     public static ConfigReader getInstance() {
         return ReaderInstance.instance;
     }
 
+    /**
+     * @return - The Docker Daemon URL
+     */
     public String getDockerUrl() {
         if (configuration == null) {
             return null;
@@ -36,6 +41,10 @@ public class ConfigReader {
         return String.format("http://%s:%s", configuration.getDockerHost(), configuration.getDockerPort());
     }
 
+    /**
+     * @return - The list of images that are to be downloaded. This is how the system would know what images are to
+     * be downloaded.
+     */
     public List<String> getImagesToDownload() {
         if (configuration == null) {
             return null;
@@ -43,6 +52,9 @@ public class ConfigReader {
         return configuration.getImages();
     }
 
+    /**
+     * @return - The docker host.
+     */
     public String getDockerHost() {
         if (configuration == null) {
             return null;
@@ -50,6 +62,10 @@ public class ConfigReader {
         return configuration.getDockerHost();
     }
 
+    /**
+     * @return - The IP address of the machine wherein the docker daemon is running. It is typically left as
+     * <code>0.0.0.0</code>
+     */
     public String getLocalhost() {
         if (configuration == null) {
             return null;
@@ -57,6 +73,9 @@ public class ConfigReader {
         return configuration.getLocalhost();
     }
 
+    /**
+     * @return - The port number that is exposed in the docker image to which traffic is to be routed to.
+     */
     public String getDockerImagePort() {
         if (configuration == null) {
             return null;
@@ -64,6 +83,12 @@ public class ConfigReader {
         return configuration.getDockerImagePort();
     }
 
+    /**
+     *
+     * @return - How many number of sessions are to be honoured at any given point in time.
+     * This kind of resembles the threshold value after which new session requests would be put into the
+     * Hub's wait queue.
+     */
     public int getMaxSession() {
         if (configuration == null) {
             return 10;

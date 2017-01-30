@@ -4,9 +4,11 @@ import com.rationaleemotions.config.ConfigReader;
 import com.spotify.docker.client.exceptions.DockerException;
 
 /**
+ * Represents a {@link ISeleniumServer} implementation that is backed by a docker container which executes the
+ * selenium server within a docker container.
  *
  */
-class DockerBasedSeleniumServer extends AbstractSeleniumServer {
+class DockerBasedSeleniumServer implements ISeleniumServer {
     private DockerHelper.ContainerInfo containerInfo;
     private static final String SELENIUM_STANDALONE_CHROME = "selenium/standalone-chrome:3.0.1";
 
@@ -15,7 +17,7 @@ class DockerBasedSeleniumServer extends AbstractSeleniumServer {
         try {
             containerInfo = DockerHelper.startContainerFor(SELENIUM_STANDALONE_CHROME);
             return containerInfo.getPort();
-        } catch (Exception e) {
+        } catch (DockerException | InterruptedException e) {
             throw new ServerException(e.getMessage(), e);
         }
     }
