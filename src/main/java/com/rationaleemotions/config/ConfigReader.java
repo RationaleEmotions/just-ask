@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -16,7 +18,8 @@ import java.util.logging.Logger;
  * A singleton instance that works as a configuration data source.
  */
 public class ConfigReader {
-    private static final String CONFIG = "just-ask.json";
+    private static final String JVM_ARG = "config.file";
+    private static final String CONFIG = System.getProperty(JVM_ARG, "just-ask.json");
     private Configuration configuration;
 
 
@@ -105,14 +108,26 @@ public class ConfigReader {
         }
 
         private static void init() {
-            InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(CONFIG);
+            InputStream stream = getStream();
             Preconditions.checkState(stream != null, "Unable to load configuration file.");
             instance.configuration = new Gson().fromJson(new JsonReader(new InputStreamReader(stream)), Configuration
                 .class);
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Successfully initialized configuration [" + instance.configuration + "]");
-            }
+            LOG.info(String.format("Working with the Configuration : %s", instance.configuration));
         }
+    }
+
+    private static InputStream getStream() {
+        try {
+            LOG.fine(String.format("Attempting to read %s as resource.", CONFIG));
+            InputStream stream =  Thread.currentThread().getContextClassLoader().getResourceAsStream(CONFIG);
+            if (stream == null) {
+                LOG.fine(String.format("Re-attempting to read %s as a local file.", CONFIG));
+                return new FileInputStream(new File(CONFIG));
+            }
+        } catch (Exception e) {
+                //Gobble exception
+        }
+        return null;
     }
 
 
@@ -172,6 +187,11 @@ public class ConfigReader {
 
         String getTarget() {
             return target;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("MappingInfo{browser='%s',target='%s'}", browser, target);
         }
     }
 }

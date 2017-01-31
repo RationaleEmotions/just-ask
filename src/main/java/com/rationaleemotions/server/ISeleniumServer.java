@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Represents the capabilities that a typical selenium server should possess.
  */
-interface ISeleniumServer {
+public interface ISeleniumServer {
     /**
      * @return - <code>true</code> if the server is running.
      */
