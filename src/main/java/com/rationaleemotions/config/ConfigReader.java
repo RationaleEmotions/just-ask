@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -19,7 +18,7 @@ import java.util.logging.Logger;
  */
 public class ConfigReader {
     private static final String JVM_ARG = "config.file";
-    private static final String CONFIG = System.getProperty(JVM_ARG, "just-ask.json");
+    private static final String CONFIG = System.getProperty(JVM_ARG);
     private Configuration configuration;
 
 
@@ -80,10 +79,10 @@ public class ConfigReader {
     /**
      * @return - The browser to target (target could for e.g., be docker image) mapping.
      */
-    public Map<String, String> getMapping() {
-        Map<String, String> mapping = new HashMap<>();
+    public Map<String, MappingInfo> getMapping() {
+        Map<String, MappingInfo> mapping = new HashMap<>();
         for (MappingInfo each : configuration.getMapping()) {
-            mapping.put(each.getBrowser(), each.getTarget());
+            mapping.put(each.getBrowser(), each);
         }
         return mapping;
     }
@@ -105,6 +104,10 @@ public class ConfigReader {
 
         static {
             init();
+        }
+
+        private ReaderInstance() {
+            //Defeat instantiation.
         }
 
         private static void init() {
@@ -173,25 +176,6 @@ public class ConfigReader {
                 ", maxSession=" + maxSession +
                 ", mapping=" + mapping +
                 '}';
-        }
-    }
-
-
-    private static class MappingInfo {
-        private String browser;
-        private String target;
-
-        String getBrowser() {
-            return browser;
-        }
-
-        String getTarget() {
-            return target;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("MappingInfo{browser='%s',target='%s'}", browser, target);
         }
     }
 }

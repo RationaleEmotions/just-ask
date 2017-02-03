@@ -18,7 +18,7 @@ class DockerBasedSeleniumServer implements ISeleniumServer {
     public int startServer(Map<String, Object> requestedCapabilities) throws ServerException {
         try {
             String browser = (String) requestedCapabilities.get(CapabilityType.BROWSER_NAME);
-            String image = ConfigReader.getInstance().getMapping().get(browser);
+            String image = ConfigReader.getInstance().getMapping().get(browser).getTarget();
             containerInfo = DockerHelper.startContainerFor(image);
             return containerInfo.getPort();
         } catch (DockerException | InterruptedException e) {

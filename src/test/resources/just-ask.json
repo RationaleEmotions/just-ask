@@ -1,0 +1,19 @@
+{
+  "dockerHost": "192.168.43.130",
+  "dockerPort": "2375",
+  "localhost": "0.0.0.0",
+  "dockerImagePort": "4444",
+  "maxSession": 5,
+  "mapping": [
+    {
+      "browser": "chrome",
+      "target": "selenium/standalone-chrome:3.0.1",
+      "implementation": "com.rationaleemotions.server.DockerBasedSeleniumServer"
+    },
+    {
+      "browser": "firefox",
+      "target": "selenium/standalone-firefox:3.0.1",
+      "implementation": "com.rationaleemotions.server.JvmBasedSeleniumServer"
+    }
+  ]
+}

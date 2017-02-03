@@ -2,6 +2,7 @@ package com.rationaleemotions.server;
 
 import com.google.common.base.Preconditions;
 import com.rationaleemotions.config.ConfigReader;
+import com.rationaleemotions.config.MappingInfo;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.LoggingBuildHandler;
@@ -110,28 +111,18 @@ class DockerHelper {
     private static void predownloadImagesIfRequired() throws DockerException, InterruptedException {
 
         DockerClient client = getClient();
-        List<Image> foundImages = client.listImages(createParams());
-        if (! foundImages.isEmpty()) {
-            LOG.warning("All images are already available. Skipping downloading.");
-            return;
-        }
         LOG.warning("Commencing download of images.");
-        Collection<String> images = getInstance().getMapping().values();
+        Collection<MappingInfo> images = getInstance().getMapping().values();
 
         ProgressHandler handler = new LoggingBuildHandler();
-        for (String image : images) {
-            client.pull(image, handler);
+        for (MappingInfo image : images) {
+            List<Image> foundImages = client.listImages(DockerClient.ListImagesParam.byName(image.getTarget()));
+            if (! foundImages.isEmpty()) {
+                LOG.warning("Skipping download for Image [%s] because it's already available.");
+                continue;
+            }
+            client.pull(image.getTarget(), handler);
         }
-    }
-
-    private static DockerClient.ListImagesParam[] createParams() {
-        Collection<String> images = getInstance().getMapping().values();
-        DockerClient.ListImagesParam[] imagesParams = new DockerClient.ListImagesParam[images.size()];
-        int i = 0;
-        for (String image : images) {
-            imagesParams[i++] = DockerClient.ListImagesParam.byName(image);
-        }
-        return imagesParams;
     }
 
     private static DockerClient getClient() {

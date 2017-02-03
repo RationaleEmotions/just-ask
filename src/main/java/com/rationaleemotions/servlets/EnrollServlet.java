@@ -1,7 +1,6 @@
 package com.rationaleemotions.servlets;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -33,6 +32,7 @@ import java.net.URL;
  * which will act as a proxy for all proxies.
  */
 public class EnrollServlet extends RegistryBasedServlet {
+    private static String hubHost;
 
     public EnrollServlet(Registry registry) {
         super(registry);
@@ -54,10 +54,11 @@ public class EnrollServlet extends RegistryBasedServlet {
         HttpClientFactory httpClientFactory = new HttpClientFactory();
         try {
             final int port = getRegistry().getHub().getConfiguration().port;
-            final URL registration = new URL("http://localhost:" + port + "/grid/register");
+            hubHost = getRegistry().getHub().getConfiguration().host;
+            final URL registration = new URL(String.format("http://%s:%d/grid/register", hubHost, port));
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST",
                 registration.toExternalForm());
-            request.setEntity(getJsonAsEntity());
+            request.setEntity(getJsonAsEntity(hubHost, port));
             HttpHost host = new HttpHost(registration.getHost(), registration.getPort());
             HttpClient client = httpClientFactory.getHttpClient();
             HttpResponse response = client.execute(host, request);
@@ -71,7 +72,7 @@ public class EnrollServlet extends RegistryBasedServlet {
         Preconditions.checkState(status == HttpStatus.SC_OK, "There was a problem in hooking in the ghost node.");
     }
 
-    private StringEntity getJsonAsEntity() throws UnsupportedEncodingException {
+    private StringEntity getJsonAsEntity(String host, int port) throws UnsupportedEncodingException {
         try {
             InputStream isr = Thread.currentThread().getContextClassLoader().getResourceAsStream("ondemand.json");
             String string = IOUtils.toString(new InputStreamReader(isr));
@@ -81,12 +82,18 @@ public class EnrollServlet extends RegistryBasedServlet {
             for (int i=0; i < capsArray.size(); i++) {
                 capsArray.get(i).getAsJsonObject().addProperty("maxInstances", maxSession);
             }
-            ondemand.get("configuration").getAsJsonObject().addProperty("maxSession", maxSession);
+            JsonObject configuration = ondemand.get("configuration").getAsJsonObject();
+            configuration.addProperty("maxSession", maxSession);
+            configuration.addProperty("hub", String.format("http://%s:%d", host, port));
             string = ondemand.toString();
             return new StringEntity(string);
         } catch (IOException e) {
             throw new GridException(e.getMessage(), e);
         }
+    }
+
+    public static String getHubHost() {
+        return hubHost;
     }
 
 }

@@ -1,5 +1,8 @@
 package com.rationaleemotions.server;
 
+import com.rationaleemotions.config.ConfigReader;
+import org.openqa.selenium.remote.CapabilityType;
+
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -10,10 +13,6 @@ public class SpawnedServer {
     private interface Marker {
     }
 
-
-    private static final String JVM_ARG = "server.impl";
-    private static final String SERVER_IMPL = System.getProperty(JVM_ARG, DockerBasedSeleniumServer.class
-        .getCanonicalName());
     private static final Logger LOG = Logger.getLogger(Marker.class.getEnclosingClass().getName());
 
     private ISeleniumServer server;
@@ -25,7 +24,8 @@ public class SpawnedServer {
     public static SpawnedServer spawnInstance(Map<String, Object> requestedCapabilities) throws Exception {
         SpawnedServer server = new SpawnedServer();
         AtomicInteger attempts = new AtomicInteger(0);
-        server.server = newInstance();
+        String browser = (String) requestedCapabilities.get(CapabilityType.BROWSER_NAME);
+        server.server = newInstance(browser);
         int port = server.server.startServer(requestedCapabilities);
 
         do {
@@ -45,18 +45,19 @@ public class SpawnedServer {
         return server.getPort();
     }
 
-    private static ISeleniumServer newInstance()
+    private static ISeleniumServer newInstance(String browser)
         throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        return (ISeleniumServer) getServerClass().newInstance();
+        return (ISeleniumServer) getServerClass(browser).newInstance();
     }
 
-    private static Class<?> getServerClass() throws ClassNotFoundException {
-        Class<?> clazz = Class.forName(SERVER_IMPL);
+    private static Class<?> getServerClass(String browser) throws ClassNotFoundException {
+        String serverImpl = ConfigReader.getInstance().getMapping().get(browser).getImplementation();
+        Class<?> clazz = Class.forName(serverImpl);
         LOG.info("Working with the implementation : [" + clazz.getCanonicalName() + "].");
         if (ISeleniumServer.class.isAssignableFrom(clazz)) {
             return clazz;
         }
-        throw new IllegalStateException(SERVER_IMPL + " does not extend " + ISeleniumServer.class
+        throw new IllegalStateException(serverImpl + " does not extend " + ISeleniumServer.class
             .getCanonicalName());
     }
 

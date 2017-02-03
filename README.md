@@ -23,6 +23,11 @@ cleaned up. The on-demand node can be a docker container that hosts a selenium n
  **just-ask** requires : 
  * **JDK 8**.
  * A Selenium Grid of version **3.0.1** or higher.
+ * Docker Remote API enabled (If you would like to leverage docker based on demand solution) 
+ 
+   * For windows you can refer [here](http://scriptcrunch.com/enable-docker-remote-api/), 
+   * For UNIX refer [here](https://docs.docker.com/engine/admin/) and 
+   * For OSX refer [here](https://forums.docker.com/t/remote-api-with-docker-for-mac-beta/15639/2)
 
 
 ## How to use
@@ -38,27 +43,29 @@ you download the uber jar i.e., the jar name that ends with `jar-with-dependenci
 {
   "dockerHost": "192.168.43.130",
   "dockerPort": "2375",
-  "localhost" : "0.0.0.0",
-  "dockerImagePort" : "4444",
-  "maxSession" : 5,
-  "mapping" : [
+  "localhost": "0.0.0.0",
+  "dockerImagePort": "4444",
+  "maxSession": 5,
+  "mapping": [
     {
-      "browser" : "chrome",
-      "target" : "selenium/standalone-chrome:3.0.1"
-    }, {
-      "browser" : "firefox",
-      "target" : "selenium/standalone-firefox:3.0.1"
+      "browser": "chrome",
+      "target": "selenium/standalone-chrome:3.0.1",
+      "implementation": "com.rationaleemotions.server.DockerBasedSeleniumServer"
+    },
+    {
+      "browser": "firefox",
+      "target": "selenium/standalone-firefox:3.0.1",
+      "implementation": "com.rationaleemotions.server.JvmBasedSeleniumServer"
     }
   ]
 }
-
 ```
 * Start the On-demand Grid using the below command (Here the JVM argument `-Dconfig.file` is used to specify the 
 location of the JSON configuration file that we created above.)
 
 ```
-java -Dconfig.file=config.json -cp selenium-server-standalone-3.0.1.jar:just-ask-<VERSION>-jar-with-dependencies.jar org.openqa.grid.selenium.GridLauncherV3 
--role hub -servlets com.rationaleemotions.servlets.EnrollServlet
+java -Dconfig.file=config.json -cp selenium-server-standalone-3.0.1.jar:just-ask-<VERSION>-jar-with-dependencies.jar \
+org.openqa.grid.selenium.GridLauncherV3 -role hub -servlets com.rationaleemotions.servlets.EnrollServlet
 ```
 
 * Now wire in the Ghost Proxy into this on-demand hub by loading the URL : 
@@ -77,8 +84,17 @@ its value as `0.0.0.0` )
 * `maxSession` - Represents the maximum number of concurrent sessions that can be supported by the On-demand Hub 
 after which new test session requests will be queued.
 * `mapping` - Represents a set of key-value pairs wherein `browser` represents the `browser flavor` and `target` 
-represents the name of the docker image that is capable of supporting the respective `browser`
+represents the name of the docker image that is capable of supporting the respective `browser`. The `target` may not 
+be relevant to all `implementation` values (for e.g., the `target` is currently relevant ONLY for `docker` based 
+on-demand nodes.)
 
+### Understanding the relevance of `implementation`
+**just-ask** currently supports two implementation flavors :
+
+* `com.rationaleemotions.server.DockerBasedSeleniumServer` - Indicates that for the browser in question, you would like
+ to leverage the Docker way of spinning off nodes on demand.
+*  `com.rationaleemotions.server.JvmBasedSeleniumServer` - Indicates that for the browser in question, you would like
+ to leverage the JVM way of spinning off nodes on demand (i.e., the on-demand node would be a new JVM process.)
 
 ## How to customize and use.
 
@@ -91,20 +107,15 @@ consume it, you merely need to add the following as a dependency in your pom fil
 <dependency>
     <groupId>com.rationaleemotions</groupId>
     <artifactId>just-ask</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
 Now that you have added the above as a maven dependency, you build your own implementation of the Server, by 
 implementing the interface `com.rationaleemotions.server.ISeleniumServer`.
 
-After that, you can wire in your implementation via the JVM argument : `-Dserver.impl=com.foo.bar.FooBar` (here `com
-.foo.bar.FooBar` is an implementation of `com.rationaleemotions.server.ISeleniumServer`) through the start-up command
-
-```
-java -Dserver.impl=com.foo.bar.FooBar -cp selenium-server-standalone-3.0.1.jar:just-ask-<VERSION>-jar-with-dependencies.jar org.openqa.grid.selenium
-.GridLauncherV3 -role hub -servlets com.rationaleemotions.servlets.EnrollServlet
-```
+After that, you can wire in your implementation via the `implementation` attribute in the JSON configuration file 
+using the JVM argument `-Dconfig.file`.
 
 ## Building the code on your own
 
