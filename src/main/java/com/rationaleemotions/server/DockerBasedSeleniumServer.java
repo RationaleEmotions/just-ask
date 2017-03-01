@@ -11,7 +11,7 @@ import java.util.Map;
  * selenium server within a docker container.
  *
  */
-class DockerBasedSeleniumServer implements ISeleniumServer {
+public class DockerBasedSeleniumServer implements ISeleniumServer {
     private DockerHelper.ContainerInfo containerInfo;
 
     @Override
