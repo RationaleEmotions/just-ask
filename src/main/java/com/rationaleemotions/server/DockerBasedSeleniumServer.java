@@ -1,9 +1,12 @@
 package com.rationaleemotions.server;
 
 import com.rationaleemotions.config.ConfigReader;
+import com.rationaleemotions.server.docker.DeviceInfo;
 import com.spotify.docker.client.exceptions.DockerException;
 import org.openqa.selenium.remote.CapabilityType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,14 +15,14 @@ import java.util.Map;
  *
  */
 public class DockerBasedSeleniumServer implements ISeleniumServer {
-    private DockerHelper.ContainerInfo containerInfo;
+    protected DockerHelper.ContainerInfo containerInfo;
 
     @Override
     public int startServer(Map<String, Object> requestedCapabilities) throws ServerException {
         try {
             String browser = (String) requestedCapabilities.get(CapabilityType.BROWSER_NAME);
             String image = ConfigReader.getInstance().getMapping().get(browser).getTarget();
-            containerInfo = DockerHelper.startContainerFor(image);
+            containerInfo = DockerHelper.startContainerFor(image, isPrivileged(), getDeviceInfos());
             return containerInfo.getPort();
         } catch (DockerException | InterruptedException e) {
             throw new ServerException(e.getMessage(), e);
@@ -39,9 +42,17 @@ public class DockerBasedSeleniumServer implements ISeleniumServer {
     @Override
     public void shutdownServer() throws ServerException {
         try {
-            DockerHelper.killContainer(containerInfo.getContainerId());
+            DockerHelper.killAndRemoveContainer(containerInfo.getContainerId());
         } catch (DockerException | InterruptedException e) {
             throw new ServerException(e.getMessage(), e);
         }
     }
+
+    public boolean isPrivileged() {
+        return false;
+    }
+    public List<DeviceInfo> getDeviceInfos() {
+        return new ArrayList<>();
+    }
+
 }

@@ -3,6 +3,7 @@ package com.rationaleemotions.server;
 import com.google.common.base.Preconditions;
 import com.rationaleemotions.config.ConfigReader;
 import com.rationaleemotions.config.MappingInfo;
+import com.rationaleemotions.server.docker.DeviceInfo;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.LoggingBuildHandler;
@@ -37,22 +38,26 @@ class DockerHelper {
      * @throws DockerException      - In case of any issues.
      * @throws InterruptedException - In case of any issues.
      */
-    static void killContainer(String id) throws DockerException, InterruptedException {
+    static void killAndRemoveContainer(String id) throws DockerException, InterruptedException {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Killing the container : [" + id + "].");
         }
         getClient().killContainer(id);
+        getClient().removeContainer(id);
     }
 
     /**
      * @param image - The name of the image for which a docker container is to be spun off. For e.g., you could
      *              specify the image name as <code>selenium/standalone-chrome:3.0.1</code> to download the
      *              <code>standalone-chrome</code> image with its tag as <code>3.0.1</code>
+     * @param isPrivileged - <code>true</code> if the container is to be run in privileged mode.
+     * @param devices - A List of {@link DeviceInfo} objects
      * @return - A {@link ContainerInfo} object that represents the newly spun off container.
      * @throws DockerException      - In case of any issues.
      * @throws InterruptedException - In case of any issues.
      */
-    static ContainerInfo startContainerFor(String image) throws DockerException, InterruptedException {
+    static ContainerInfo startContainerFor(String image, boolean isPrivileged, List<DeviceInfo> devices)
+        throws DockerException, InterruptedException {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Commencing starting of container for the image [" + image + "].");
         }
@@ -70,7 +75,32 @@ class DockerHelper {
         randomPort.add(binding);
         portBindings.put(ConfigReader.getInstance().getDockerImagePort(), randomPort);
 
-        final HostConfig hostConfig = HostConfig.builder().portBindings(portBindings).build();
+        List<Device> deviceList = new LinkedList<>();
+        for (DeviceInfo each : devices) {
+            deviceList.add(new Device() {
+                @Override
+                public String pathOnHost() {
+                    return each.getPathOnHost();
+                }
+
+                @Override
+                public String pathInContainer() {
+                    return each.getPathOnContainer();
+                }
+
+                @Override
+                public String cgroupPermissions() {
+                    return each.getGroupPermissions();
+                }
+            });
+        }
+
+        HostConfig.Builder hostConfigBuilder = HostConfig.builder().portBindings(portBindings).privileged(isPrivileged);
+        if (!deviceList.isEmpty()) {
+            hostConfigBuilder = hostConfigBuilder.devices(deviceList);
+        }
+
+        final HostConfig hostConfig = hostConfigBuilder.build();
 
         final ContainerConfig containerConfig = ContainerConfig.builder()
             .hostConfig(hostConfig)
@@ -134,7 +164,7 @@ class DockerHelper {
      * A Simple POJO that represents the newly spun off container, encapsulating the container Id and the port on which
      * the container is running.
      */
-    static class ContainerInfo {
+    public static class ContainerInfo {
         private int port;
         private String containerId;
 
@@ -143,11 +173,11 @@ class DockerHelper {
             this.containerId = containerId;
         }
 
-        int getPort() {
+        public int getPort() {
             return port;
         }
 
-        String getContainerId() {
+        public String getContainerId() {
             return containerId;
         }
 
