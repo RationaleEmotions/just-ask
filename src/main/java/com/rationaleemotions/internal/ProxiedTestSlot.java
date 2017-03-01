@@ -1,4 +1,4 @@
-package org.openqa.grid.internal;
+package com.rationaleemotions.internal;
 
 import org.openqa.grid.common.SeleniumProtocol;
 import org.openqa.grid.common.exception.GridException;
@@ -14,9 +14,9 @@ import java.util.Map;
  */
 public class ProxiedTestSlot extends TestSlot {
     private URL remoteURL;
-    public ProxiedTestSlot(RemoteProxy proxy, SeleniumProtocol protocol,
-        String path, Map<String, Object> capabilities) {
-        super(proxy, protocol, path, capabilities);
+
+    public ProxiedTestSlot(RemoteProxy proxy, SeleniumProtocol protocol, Map<String, Object> capabilities) {
+        super(proxy, protocol, capabilities);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ProxiedTestSlot extends TestSlot {
     }
 
     @Override
-    boolean matches(Map<String, Object> desiredCapabilities) {
+    public boolean matches(Map<String, Object> desiredCapabilities) {
         return true;
     }
 

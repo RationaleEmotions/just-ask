@@ -7,7 +7,7 @@ import com.rationaleemotions.server.SpawnedServer;
 import org.openqa.grid.common.RegistrationRequest;
 import org.openqa.grid.common.SeleniumProtocol;
 import org.openqa.grid.common.exception.GridException;
-import org.openqa.grid.internal.ProxiedTestSlot;
+import com.rationaleemotions.internal.ProxiedTestSlot;
 import org.openqa.grid.internal.Registry;
 import org.openqa.grid.internal.TestSession;
 import org.openqa.grid.internal.TestSlot;
@@ -40,7 +40,6 @@ public class GhostProxy extends DefaultRemoteProxy {
     private interface Marker {
     }
 
-
     private static final Logger LOG = Logger.getLogger(Marker.class.getEnclosingClass().getName());
     private Map<String, SpawnedServer> servers = new MapMaker().initialCapacity(500).makeMap();
 
@@ -48,32 +47,12 @@ public class GhostProxy extends DefaultRemoteProxy {
 
     public GhostProxy(RegistrationRequest request, Registry registry) {
         super(request, registry);
-        List<DesiredCapabilities> capabilities = request.getConfiguration().capabilities;
-
-        List<TestSlot> slots = new ArrayList<>();
-        for (DesiredCapabilities capability : capabilities) {
-            Object maxInstance = capability.getCapability(MAX_INSTANCES);
-
-            SeleniumProtocol protocol = getProtocol(capability);
-            String path = getPath(capability);
-
-            if (maxInstance == null) {
-                LOG.warning("Max instance not specified. Using default = 1 instance");
-                maxInstance = "1";
-            }
-
-            int value = Integer.parseInt(maxInstance.toString());
-            for (int i = 0; i < value; i++) {
-                Map<String, Object> c = new HashMap<>();
-                for (String k : capability.asMap().keySet()) {
-                    c.put(k, capability.getCapability(k));
-                }
-                slots.add(new ProxiedTestSlot(this, protocol, path, c));
-            }
-        }
-
-        this.testSlots = Collections.unmodifiableList(slots);
         LOG.info("Maximum sessions supported : " + ConfigReader.getInstance().getMaxSession());
+    }
+
+    @Override
+    public TestSlot createTestSlot(SeleniumProtocol protocol, Map<String, Object> capabilities) {
+        return new ProxiedTestSlot(this, protocol, capabilities);
     }
 
     @Override

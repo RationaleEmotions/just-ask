@@ -118,7 +118,8 @@ class DockerHelper {
         for (MappingInfo image : images) {
             List<Image> foundImages = client.listImages(DockerClient.ListImagesParam.byName(image.getTarget()));
             if (! foundImages.isEmpty()) {
-                LOG.warning("Skipping download for Image [%s] because it's already available.");
+                LOG.warning(String.format("Skipping download for Image [%s] because it's already available.",
+                    image.getTarget()));
                 continue;
             }
             client.pull(image.getTarget(), handler);
