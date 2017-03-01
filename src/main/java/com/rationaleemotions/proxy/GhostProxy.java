@@ -3,29 +3,30 @@ package com.rationaleemotions.proxy;
 import com.google.common.collect.MapMaker;
 import com.google.gson.JsonObject;
 import com.rationaleemotions.config.ConfigReader;
+import com.rationaleemotions.internal.ProxiedTestSlot;
 import com.rationaleemotions.server.SpawnedServer;
 import org.openqa.grid.common.RegistrationRequest;
 import org.openqa.grid.common.SeleniumProtocol;
 import org.openqa.grid.common.exception.GridException;
-import com.rationaleemotions.internal.ProxiedTestSlot;
 import org.openqa.grid.internal.Registry;
+import org.openqa.grid.internal.SessionTerminationReason;
 import org.openqa.grid.internal.TestSession;
 import org.openqa.grid.internal.TestSlot;
 import org.openqa.grid.selenium.proxy.DefaultRemoteProxy;
 import org.openqa.grid.web.servlet.handler.RequestType;
 import org.openqa.grid.web.servlet.handler.SeleniumBasedRequest;
 import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.openqa.grid.common.RegistrationRequest.*;
 import static org.openqa.grid.web.servlet.handler.RequestType.START_SESSION;
 import static org.openqa.grid.web.servlet.handler.RequestType.STOP_SESSION;
 
@@ -86,11 +87,18 @@ public class GhostProxy extends DefaultRemoteProxy {
     public void beforeCommand(TestSession session, HttpServletRequest request, HttpServletResponse response) {
         RequestType type = identifyRequestType(request);
         if (type == START_SESSION) {
-            if (processTestSession(session)) {
-                startServerForTestSession(session);
-            } else {
-                throw new IllegalStateException("Cannot create a session due to missing target mapping. "
-                    + "Available mappings are " + ConfigReader.getInstance().getMapping());
+            try {
+                if (processTestSession(session)) {
+                    startServerForTestSession(session);
+                } else {
+                    String msg = "Missing target mapping. Available mappings are " +
+                        ConfigReader.getInstance().getMapping();
+                    throw new IllegalStateException(msg);
+                }
+            } catch (Exception e) {
+                getRegistry().terminate(session, SessionTerminationReason.CREATIONFAILED);
+                LOG.severe("Failed creating a session. Root cause :" + e.getMessage());
+                throw e;
             }
         }
         super.beforeCommand(session, request, response);
@@ -122,41 +130,10 @@ public class GhostProxy extends DefaultRemoteProxy {
         return SeleniumBasedRequest.createFromRequest(request, getRegistry()).extractRequestType();
     }
 
-    private String getPath(DesiredCapabilities capability) {
-        String type = (String) capability.getCapability(PATH);
-        if (type == null) {
-            switch (getProtocol(capability)) {
-                case Selenium:
-                    return "/selenium-server/driver";
-                case WebDriver:
-                    return "/wd/hub";
-                default:
-                    throw new GridException("Protocol not supported.");
-            }
-        }
-        return type;
-    }
-
     private boolean processTestSession(TestSession session) {
         Map<String, Object> requestedCapabilities = session.getRequestedCapabilities();
         String browser = (String) requestedCapabilities.get(CapabilityType.BROWSER_NAME);
         return ConfigReader.getInstance().getMapping().containsKey(browser);
-    }
-
-    private SeleniumProtocol getProtocol(DesiredCapabilities capability) {
-        String type = (String) capability.getCapability(SELENIUM_PROTOCOL);
-
-        SeleniumProtocol protocol;
-        if (type == null) {
-            protocol = SeleniumProtocol.WebDriver;
-        } else {
-            try {
-                protocol = SeleniumProtocol.valueOf(type);
-            } catch (IllegalArgumentException e) {
-                throw new GridException(type + " isn't a valid protocol type for grid.", e);
-            }
-        }
-        return protocol;
     }
 
     private void startServerForTestSession(TestSession session) {
