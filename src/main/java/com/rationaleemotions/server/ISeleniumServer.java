@@ -6,9 +6,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.openqa.grid.common.exception.GridConfigurationException;
+import org.openqa.grid.internal.TestSession;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * Represents the capabilities that a typical selenium server should possess.
@@ -32,11 +32,11 @@ public interface ISeleniumServer {
     /**
      * Helps start a selenium server.
      *
-     * @param requestedCapabilities - the capabilities the client requested.
+     * @param session - the capabilities the client requested.
      * @return - The port on which the server was spun off.
      * @throws ServerException - In case of problems.
      */
-    int startServer(Map<String, Object> requestedCapabilities) throws ServerException;
+    int startServer(TestSession session) throws ServerException;
 
     /**
      * @return - The port on which the server was spun off.

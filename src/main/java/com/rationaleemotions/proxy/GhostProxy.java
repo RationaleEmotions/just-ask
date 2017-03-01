@@ -20,8 +20,6 @@ import org.openqa.selenium.remote.CapabilityType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -44,8 +42,6 @@ public class GhostProxy extends DefaultRemoteProxy {
     private static final Logger LOG = Logger.getLogger(Marker.class.getEnclosingClass().getName());
     private Map<String, SpawnedServer> servers = new MapMaker().initialCapacity(500).makeMap();
 
-    private List<TestSlot> testSlots = new ArrayList<>();
-
     public GhostProxy(RegistrationRequest request, Registry registry) {
         super(request, registry);
         LOG.info("Maximum sessions supported : " + ConfigReader.getInstance().getMaxSession());
@@ -54,11 +50,6 @@ public class GhostProxy extends DefaultRemoteProxy {
     @Override
     public TestSlot createTestSlot(SeleniumProtocol protocol, Map<String, Object> capabilities) {
         return new ProxiedTestSlot(this, protocol, capabilities);
-    }
-
-    @Override
-    public List<TestSlot> getTestSlots() {
-        return this.testSlots;
     }
 
     @Override
@@ -138,7 +129,7 @@ public class GhostProxy extends DefaultRemoteProxy {
 
     private void startServerForTestSession(TestSession session) {
         try {
-            SpawnedServer server = SpawnedServer.spawnInstance(session.getRequestedCapabilities());
+            SpawnedServer server = SpawnedServer.spawnInstance(session);
             String key = "http://" + server.getHost() + ":" + server.getPort();
             URL url = new URL(key);
             servers.put(key, server);

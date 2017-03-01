@@ -1,12 +1,12 @@
 package com.rationaleemotions.server;
 
 import com.rationaleemotions.servlets.EnrollServlet;
+import org.openqa.grid.internal.TestSession;
 import org.openqa.grid.selenium.GridLauncherV3;
 import org.openqa.selenium.net.PortProber;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,7 +42,7 @@ public class JvmBasedSeleniumServer implements ISeleniumServer {
     }
 
     @Override
-    public int startServer(Map<String, Object> requestedCapabilities) throws ServerException {
+    public int startServer(TestSession session) throws ServerException {
         port = PortProber.findFreePort();
         String[] args = getArgs(port);
         if (LOG.isLoggable(Level.INFO)) {

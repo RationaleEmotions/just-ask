@@ -1,9 +1,9 @@
 package com.rationaleemotions.server;
 
 import com.rationaleemotions.config.ConfigReader;
+import org.openqa.grid.internal.TestSession;
 import org.openqa.selenium.remote.CapabilityType;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -21,12 +21,12 @@ public class SpawnedServer {
         //We have a factory method. Hiding the constructor.
     }
 
-    public static SpawnedServer spawnInstance(Map<String, Object> requestedCapabilities) throws Exception {
+    public static SpawnedServer spawnInstance(TestSession session) throws Exception {
         SpawnedServer server = new SpawnedServer();
         AtomicInteger attempts = new AtomicInteger(0);
-        String browser = (String) requestedCapabilities.get(CapabilityType.BROWSER_NAME);
+        String browser = (String) session.getRequestedCapabilities().get(CapabilityType.BROWSER_NAME);
         server.server = newInstance(browser);
-        int port = server.server.startServer(requestedCapabilities);
+        int port = server.server.startServer(session);
 
         do {
             TimeUnit.SECONDS.sleep(2);

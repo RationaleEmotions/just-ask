@@ -3,11 +3,11 @@ package com.rationaleemotions.server;
 import com.rationaleemotions.config.ConfigReader;
 import com.rationaleemotions.server.docker.DeviceInfo;
 import com.spotify.docker.client.exceptions.DockerException;
+import org.openqa.grid.internal.TestSession;
 import org.openqa.selenium.remote.CapabilityType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Represents a {@link ISeleniumServer} implementation that is backed by a docker container which executes the
@@ -18,9 +18,9 @@ public class DockerBasedSeleniumServer implements ISeleniumServer {
     protected DockerHelper.ContainerInfo containerInfo;
 
     @Override
-    public int startServer(Map<String, Object> requestedCapabilities) throws ServerException {
+    public int startServer(TestSession session) throws ServerException {
         try {
-            String browser = (String) requestedCapabilities.get(CapabilityType.BROWSER_NAME);
+            String browser = (String) session.getRequestedCapabilities().get(CapabilityType.BROWSER_NAME);
             String image = ConfigReader.getInstance().getMapping().get(browser).getTarget();
             containerInfo = DockerHelper.startContainerFor(image, isPrivileged(), getDeviceInfos());
             return containerInfo.getPort();
