@@ -30,7 +30,7 @@ public class SpawnedServer {
 
         do {
             TimeUnit.SECONDS.sleep(2);
-        } while ((! server.server.isServerRunning()) || (attempts.incrementAndGet() <= 5));
+        } while (!server.server.isServerRunning() && attempts.incrementAndGet() <= 5);
         if (LOG.isLoggable(Level.WARNING)) {
             LOG.warning(String.format("***Server started on [%d]****", port));
         }
