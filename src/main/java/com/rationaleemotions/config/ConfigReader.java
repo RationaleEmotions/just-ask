@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,23 +37,13 @@ public class ConfigReader {
     }
 
     /**
-     * @return - The Docker Daemon URL
+     * @return - The docker rest api uri.
      */
-    public String getDockerUrl() {
+    public URI getDockerRestApiUri() {
         if (configuration == null) {
             return null;
         }
-        return String.format("http://%s:%s", configuration.getDockerHost(), configuration.getDockerPort());
-    }
-
-    /**
-     * @return - The docker host.
-     */
-    public String getDockerHost() {
-        if (configuration == null) {
-            return null;
-        }
-        return configuration.getDockerHost();
+        return URI.create(configuration.getDockerRestApiUri().replaceAll("^unix:///", "unix://localhost/"));
     }
 
     /**
@@ -135,19 +126,14 @@ public class ConfigReader {
 
 
     private static class Configuration {
-        private String dockerHost;
+        private String dockerRestApiUri;
         private String localhost;
-        private String dockerPort;
         private String dockerImagePort;
         private int maxSession;
         private List<MappingInfo> mapping;
 
-        public String getDockerPort() {
-            return dockerPort;
-        }
-
-        public String getDockerHost() {
-            return dockerHost;
+        public String getDockerRestApiUri() {
+            return dockerRestApiUri;
         }
 
         public String getLocalhost() {
@@ -169,9 +155,8 @@ public class ConfigReader {
         @Override
         public String toString() {
             return "Configuration{" +
-                "dockerHost='" + dockerHost + '\'' +
+                "dockerRestApiUri='" + dockerRestApiUri + '\'' +
                 ", localhost='" + localhost + '\'' +
-                ", dockerPort='" + dockerPort + '\'' +
                 ", dockerImagePort='" + dockerImagePort + '\'' +
                 ", maxSession=" + maxSession +
                 ", mapping=" + mapping +

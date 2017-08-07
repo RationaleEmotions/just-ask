@@ -23,11 +23,13 @@ cleaned up. The on-demand node can be a docker container that hosts a selenium n
  **just-ask** requires : 
  * **JDK 8**.
  * A Selenium Grid of version **3.2.0** or higher.
- * Docker Remote API enabled (If you would like to leverage docker based on demand solution) 
- 
-   * For windows you can refer [here](http://scriptcrunch.com/enable-docker-remote-api/), 
-   * For UNIX refer [here](https://docs.docker.com/engine/admin/) and 
-   * For OSX refer [here](https://forums.docker.com/t/remote-api-with-docker-for-mac-beta/15639/2)
+ * If you would like to leverage docker based on demand solution
+   * Access to default Docker unix socket
+     * you can refer [here](https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-socket-option)
+   * Or Docker Remote API enabled
+     * For windows you can refer [here](http://scriptcrunch.com/enable-docker-remote-api/), 
+     * For UNIX refer [here](https://docs.docker.com/engine/admin/) and 
+     * For OSX refer [here](https://forums.docker.com/t/remote-api-with-docker-for-mac-beta/15639/2)
 
 
 ## How to use
@@ -41,8 +43,7 @@ you download the uber jar i.e., the jar name that ends with `jar-with-dependenci
 
 ```json
 {
-  "dockerHost": "192.168.43.130",
-  "dockerPort": "2375",
+  "dockerRestApiUri": "http://192.168.43.130:2375",
   "localhost": "0.0.0.0",
   "dockerImagePort": "4444",
   "maxSession": 5,
@@ -76,8 +77,7 @@ org.openqa.grid.selenium.GridLauncherV3 -role hub -servlets com.rationaleemotion
 ## Understanding the JSON configuration file.
 The meaning of each of the attributes of the JSON file is as below :
 
-* `dockerHost` - Represents the Host name of the Docker Daemon.
-* `dockerPort` - Represents the port on which the Docker Daemon is listening to.
+* `dockerRestApiUri` - Represents the Docker Rest API URI (could be `unix:///var/run/docker.sock` or `http://192.168.43.130:2375`).
 * `localhost` - Represents the hostname of the machine on which the Docker Daemon is running on (Its safe to leave 
 its value as `0.0.0.0` )
 * `dockerImagePort` - Represents the port number that is exposed inside the docker container.

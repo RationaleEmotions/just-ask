@@ -28,6 +28,8 @@ class DockerHelper {
 
     private static final Logger LOG = Logger.getLogger(Marker.class.getEnclosingClass().getName());
 
+    public static final String UNIX_SCHEME = "unix";
+    
     private DockerHelper() {
         DockerClient client = getClient();
         Runtime.getRuntime().addShutdownHook(new Thread(new DockerCleanup(client)));
@@ -157,7 +159,7 @@ class DockerHelper {
     }
 
     private static DockerClient getClient() {
-        return DefaultDockerClient.builder().uri(getInstance().getDockerUrl()).build();
+        return DefaultDockerClient.builder().uri(getInstance().getDockerRestApiUri()).build();
     }
 
     /**
