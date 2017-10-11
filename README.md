@@ -1,5 +1,7 @@
 ![Build Status](https://travis-ci.org/RationaleEmotions/just-ask.svg?branch=master)
 
+![JProfiler](https://www.ej-technologies.com/images/product_banners/jprofiler_large.png) Special thanks to [Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) for their encouragement on Open Source projects. 
+
 # just-ask
 
 As the name suggests, this library is eventually going to end up becoming a simple prototype that can be enhanced to 
