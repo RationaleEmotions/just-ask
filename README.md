@@ -24,7 +24,7 @@ cleaned up. The on-demand node can be a docker container that hosts a selenium n
  
  **just-ask** requires : 
  * **JDK 8**.
- * A Selenium Grid of version **3.2.0** or higher.
+ * A Selenium Grid of version **3.6.0** or higher.
  * If you would like to leverage docker based on demand solution
    * Access to default Docker unix socket
      * you can refer [here](https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-socket-option)
@@ -109,7 +109,7 @@ consume it, you merely need to add the following as a dependency in your pom fil
 <dependency>
     <groupId>com.rationaleemotions</groupId>
     <artifactId>just-ask</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
