@@ -24,7 +24,7 @@ cleaned up. The on-demand node can be a docker container that hosts a selenium n
  
  **just-ask** requires : 
  * **JDK 8**.
- * A Selenium Grid of version **3.6.0** or higher.
+ * A Selenium Grid of version **3.7.1** or higher.
  * If you would like to leverage docker based on demand solution
    * Access to default Docker unix socket
      * you can refer [here](https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-socket-option)
@@ -38,7 +38,7 @@ cleaned up. The on-demand node can be a docker container that hosts a selenium n
 
 In order to consume **just-ask** for your straight forward on-demand grid needs, following instructions need to be 
 followed:
-* First download the uber jar from [here](http://repo1.maven.org/maven2/com/rationaleemotions/just-ask/1.0.2/). Make sure 
+* First download the uber jar from [here](http://repo1.maven.org/maven2/com/rationaleemotions/just-ask/1.0.3/). Make sure 
 you download the uber jar i.e., the jar name that ends with `jar-with-dependencies`. The latest released v
 * Download the latest Selenium standalone jar from [here](http://www.seleniumhq.org/download/).
 * Now create a configuration JSON file as shown below :
@@ -67,7 +67,7 @@ you download the uber jar i.e., the jar name that ends with `jar-with-dependenci
 location of the JSON configuration file that we created above.)
 
 ```
-java -Dconfig.file=config.json -cp selenium-server-standalone-3.0.1.jar:just-ask-<VERSION>-jar-with-dependencies.jar \
+java -Dconfig.file=config.json -cp selenium-server-standalone-3.7.1.jar:just-ask-<VERSION>-jar-with-dependencies.jar \
 org.openqa.grid.selenium.GridLauncherV3 -role hub -servlets com.rationaleemotions.servlets.EnrollServlet
 ```
 
@@ -127,7 +127,7 @@ In order to get started with using this library here are the set of instructions
  * Drop the built jar (you will find two jars, so please make sure you pick up the uber jar which would have its name
   around something like this `just-ask-<VERSION>-jar-with-dependencies.jar` ) in the directory that contains the 
   selenium server standalone.
- * Start the selenium hub using the command `java -cp selenium-server-standalone-3.2.0.jar:just-ask-<VERSION>-jar-with-dependencies.jar org.openqa.grid.selenium.GridLauncherV3 -role hub -servlets com.rationaleemotions.servlets.EnrollServlet`
+ * Start the selenium hub using the command `java -cp selenium-server-standalone-3.7.1.jar:just-ask-<VERSION>-jar-with-dependencies.jar org.openqa.grid.selenium.GridLauncherV3 -role hub -servlets com.rationaleemotions.servlets.EnrollServlet`
  * Explicitly register the *ghost node* by loading the URL `http://localhost:4444/grid/admin/EnrollServlet` in a browser.
  
  Now the **On-demand Grid** is ready for use.
