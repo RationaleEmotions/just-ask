@@ -14,7 +14,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.openqa.grid.common.exception.GridConfigurationException;
 import org.openqa.grid.common.exception.GridException;
-import org.openqa.grid.internal.Registry;
+import org.openqa.grid.internal.GridRegistry;
 import org.openqa.grid.web.servlet.RegistryBasedServlet;
 import org.openqa.selenium.remote.internal.HttpClientFactory;
 
@@ -34,7 +34,7 @@ import java.net.URL;
 public class EnrollServlet extends RegistryBasedServlet {
     private static String hubHost;
 
-    public EnrollServlet(Registry registry) {
+    public EnrollServlet(GridRegistry registry) {
         super(registry);
     }
 

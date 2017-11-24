@@ -8,7 +8,7 @@ import com.rationaleemotions.server.SpawnedServer;
 import org.openqa.grid.common.RegistrationRequest;
 import org.openqa.grid.common.SeleniumProtocol;
 import org.openqa.grid.common.exception.GridException;
-import org.openqa.grid.internal.Registry;
+import org.openqa.grid.internal.GridRegistry;
 import org.openqa.grid.internal.SessionTerminationReason;
 import org.openqa.grid.internal.TestSession;
 import org.openqa.grid.internal.TestSlot;
@@ -42,7 +42,7 @@ public class GhostProxy extends DefaultRemoteProxy {
     private static final Logger LOG = Logger.getLogger(Marker.class.getEnclosingClass().getName());
     private Map<String, SpawnedServer> servers = new MapMaker().initialCapacity(500).makeMap();
 
-    public GhostProxy(RegistrationRequest request, Registry registry) {
+    public GhostProxy(RegistrationRequest request, GridRegistry registry) {
         super(request, registry);
         LOG.info("Maximum sessions supported : " + ConfigReader.getInstance().getMaxSession());
     }
