@@ -20,9 +20,10 @@ but when it comes to scaling the Grid infrastructure this also does not help a l
 As and when tests make hit the hub, a node is spun off, the test is routed to the node and after usage the node is 
 cleaned up. The on-demand node can be a docker container that hosts a selenium node.
 
- ## Pre-requisites
+##Pre-requisites
  
  **just-ask** requires : 
+ 
  * **JDK 8**.
  * A Selenium Grid of version **3.7.1** or higher.
  * If you would like to leverage docker based on demand solution
@@ -52,12 +53,12 @@ you download the uber jar i.e., the jar name that ends with `jar-with-dependenci
   "mapping": [
     {
       "browser": "chrome",
-      "target": "selenium/standalone-chrome:3.0.1",
+      "target": "selenium/standalone-chrome:3.7.1",
       "implementation": "com.rationaleemotions.server.DockerBasedSeleniumServer"
     },
     {
       "browser": "firefox",
-      "target": "selenium/standalone-firefox:3.0.1",
+      "target": "selenium/standalone-firefox:3.7.1",
       "implementation": "com.rationaleemotions.server.JvmBasedSeleniumServer"
     }
   ]
