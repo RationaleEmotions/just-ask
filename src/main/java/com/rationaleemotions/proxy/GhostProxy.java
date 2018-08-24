@@ -112,7 +112,20 @@ public class GhostProxy extends DefaultRemoteProxy {
         return true;
     }
 
-    @Override
+
+    /**
+     * <p>
+     * Removed the override annotation
+     *
+     * Deprecated & removed this method in the latest "BaseRemoteProxy" class
+     *
+     * See {@link https://github.com/SeleniumHQ/selenium/commit/dfffd9e16e46c205ab7f27f908abc7c94ece3218}
+     *
+     * Recommended to use the #getProxyStatus() method
+     *
+     * </p>
+     * @return
+     */
     public JsonObject getStatus() {
         return new JsonObject();
     }
