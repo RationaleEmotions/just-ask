@@ -5,18 +5,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.rationaleemotions.config.ConfigReader;
-import org.apache.commons.io.IOUtils;
+import java.io.BufferedReader;
+import java.nio.charset.Charset;
+import java.util.stream.Collectors;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.openqa.grid.common.exception.GridConfigurationException;
 import org.openqa.grid.common.exception.GridException;
 import org.openqa.grid.internal.GridRegistry;
 import org.openqa.grid.web.servlet.RegistryBasedServlet;
-import org.openqa.selenium.remote.internal.HttpClientFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 /**
@@ -51,7 +52,8 @@ public class EnrollServlet extends RegistryBasedServlet {
         //After the construction is finished, lets wrap up.
         int status;
 
-        HttpClientFactory httpClientFactory = new HttpClientFactory();
+        HttpClient client = HttpClientBuilder.create().build();
+
         try {
             final int port = getRegistry().getHub().getConfiguration().port;
             hubHost = getRegistry().getHub().getConfiguration().host;
@@ -60,22 +62,26 @@ public class EnrollServlet extends RegistryBasedServlet {
                 registration.toExternalForm());
             request.setEntity(getJsonAsEntity(hubHost, port));
             HttpHost host = new HttpHost(registration.getHost(), registration.getPort());
-            HttpClient client = httpClientFactory.getHttpClient();
             HttpResponse response = client.execute(host, request);
             status = response.getStatusLine().getStatusCode();
 
         } catch (IOException | GridConfigurationException e) {
             throw new GridException(e.getMessage(), e);
-        } finally {
-            httpClientFactory.close();
         }
         Preconditions.checkState(status == HttpStatus.SC_OK, "There was a problem in hooking in the ghost node.");
     }
 
-    private StringEntity getJsonAsEntity(String host, int port) throws UnsupportedEncodingException {
+    private String convert(InputStream inputStream, Charset charset) throws IOException {
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, charset))) {
+            return br.lines().collect(Collectors.joining(System.lineSeparator()));
+        }
+    }
+
+    private StringEntity getJsonAsEntity(String host, int port) {
         try {
             InputStream isr = Thread.currentThread().getContextClassLoader().getResourceAsStream("ondemand.json");
-            String string = IOUtils.toString(new InputStreamReader(isr));
+            String string = convert(isr, Charset.defaultCharset());
             JsonObject ondemand = new JsonParser().parse(string).getAsJsonObject();
             int maxSession =ConfigReader.getInstance().getMaxSession();
             JsonArray capsArray = ondemand.get("capabilities").getAsJsonArray();

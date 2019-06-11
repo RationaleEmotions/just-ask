@@ -4,7 +4,7 @@
 
     <groupId>com.rationaleemotions</groupId>
     <artifactId>just-ask</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <name>just-ask</name>

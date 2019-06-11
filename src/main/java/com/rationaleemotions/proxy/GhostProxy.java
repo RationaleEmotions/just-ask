@@ -1,10 +1,10 @@
 package com.rationaleemotions.proxy;
 
 import com.google.common.collect.MapMaker;
-import com.google.gson.JsonObject;
 import com.rationaleemotions.config.ConfigReader;
 import com.rationaleemotions.internal.ProxiedTestSlot;
 import com.rationaleemotions.server.SpawnedServer;
+import java.util.HashMap;
 import org.openqa.grid.common.RegistrationRequest;
 import org.openqa.grid.common.SeleniumProtocol;
 import org.openqa.grid.common.exception.GridException;
@@ -112,22 +112,9 @@ public class GhostProxy extends DefaultRemoteProxy {
         return true;
     }
 
-
-    /**
-     * <p>
-     * Removed the override annotation
-     *
-     * Deprecated & removed this method in the latest "BaseRemoteProxy" class
-     *
-     * See {@link https://github.com/SeleniumHQ/selenium/commit/dfffd9e16e46c205ab7f27f908abc7c94ece3218}
-     *
-     * Recommended to use the #getProxyStatus() method
-     *
-     * </p>
-     * @return
-     */
-    public JsonObject getStatus() {
-        return new JsonObject();
+    @Override
+    public Map<String, Object> getProxyStatus() {
+        return new HashMap<>();
     }
 
     private RequestType identifyRequestType(HttpServletRequest request) {

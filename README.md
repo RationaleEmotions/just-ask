@@ -39,7 +39,7 @@ cleaned up. The on-demand node can be a docker container that hosts a selenium n
 
 In order to consume **just-ask** for your straight forward on-demand grid needs, following instructions need to be 
 followed:
-* First download the uber jar from [here](http://repo1.maven.org/maven2/com/rationaleemotions/just-ask/1.0.3/). Make sure 
+* First download the uber jar from [here](http://repo1.maven.org/maven2/com/rationaleemotions/just-ask/1.0.4/). Make sure 
 you download the uber jar i.e., the jar name that ends with `jar-with-dependencies`. The latest released v
 * Download the latest Selenium standalone jar from [here](http://www.seleniumhq.org/download/).
 * Now create a configuration JSON file as shown below :
@@ -110,7 +110,7 @@ consume it, you merely need to add the following as a dependency in your pom fil
 <dependency>
     <groupId>com.rationaleemotions</groupId>
     <artifactId>just-ask</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 
