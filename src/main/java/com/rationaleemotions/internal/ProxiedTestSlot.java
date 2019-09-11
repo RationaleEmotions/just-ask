@@ -29,13 +29,10 @@ public class ProxiedTestSlot extends TestSlot {
             if (isRemoteURLSet) {
                 throw new GridException("Configuration error for the node." + u + " isn't a valid URL");
             }
+            else {
+				return super.getRemoteURL();
+			}          
         }
-        return null;
-    }
-
-    @Override
-    public boolean matches(Map<String, Object> desiredCapabilities) {
-        return true;
     }
 
     public void setRemoteURL(URL remoteURL) {
