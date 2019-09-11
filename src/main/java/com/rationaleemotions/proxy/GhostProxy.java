@@ -77,20 +77,12 @@ public class GhostProxy extends DefaultRemoteProxy {
     @Override
     public void beforeCommand(TestSession session, HttpServletRequest request, HttpServletResponse response) {
         RequestType type = identifyRequestType(request);
-        if (type == START_SESSION) {
-            try {
+        if (type == START_SESSION) {           
                 if (processTestSession(session)) {
                     startServerForTestSession(session);
                 } else {
-                    String msg = "Missing target mapping. Available mappings are " +
-                        ConfigReader.getInstance().getMapping();
-                    throw new IllegalStateException(msg);
-                }
-            } catch (Exception e) {
-                getRegistry().terminate(session, SessionTerminationReason.CREATIONFAILED);
-                LOG.severe("Failed creating a session. Root cause :" + e.getMessage());
-                throw e;
-            }
+                	LOG.info("Missing target mapping. Available mappings are: " + ConfigReader.getInstance().getMapping());
+                }           
         }
         super.beforeCommand(session, request, response);
     }
@@ -100,10 +92,13 @@ public class GhostProxy extends DefaultRemoteProxy {
         super.afterCommand(session, request, response);
         RequestType type = identifyRequestType(request);
         if (type == STOP_SESSION) {
-            stopServerForTestSession(session);
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(String.format("Counter value after decrementing : %d", counter.decrementAndGet()));
-            }
+        	if (processTestSession(session)) {
+				stopServerForTestSession(session);
+				 if (LOG.isLoggable(Level.INFO)) {
+		                LOG.info(String.format("Counter value after decrementing : %d", counter.decrementAndGet()));
+		            }
+			}
+           
         }
     }
 
