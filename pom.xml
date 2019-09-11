@@ -53,7 +53,7 @@
         <dependency>
             <groupId>com.spotify</groupId>
             <artifactId>docker-client</artifactId>
-            <version>7.0.0</version>
+            <version>8.16.0</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
