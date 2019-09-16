@@ -30,8 +30,8 @@ public class ProxiedTestSlot extends TestSlot {
                 throw new GridException("Configuration error for the node." + u + " isn't a valid URL");
             }
             else {
-				return super.getRemoteURL();
-			}          
+                return super.getRemoteURL();
+            }
         }
     }
 

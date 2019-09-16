@@ -9,7 +9,6 @@ import org.openqa.grid.common.RegistrationRequest;
 import org.openqa.grid.common.SeleniumProtocol;
 import org.openqa.grid.common.exception.GridException;
 import org.openqa.grid.internal.GridRegistry;
-import org.openqa.grid.internal.SessionTerminationReason;
 import org.openqa.grid.internal.TestSession;
 import org.openqa.grid.internal.TestSlot;
 import org.openqa.grid.selenium.proxy.DefaultRemoteProxy;
@@ -77,12 +76,12 @@ public class GhostProxy extends DefaultRemoteProxy {
     @Override
     public void beforeCommand(TestSession session, HttpServletRequest request, HttpServletResponse response) {
         RequestType type = identifyRequestType(request);
-        if (type == START_SESSION) {           
+        if (type == START_SESSION) {
                 if (processTestSession(session)) {
                     startServerForTestSession(session);
                 } else {
                 	LOG.info("Missing target mapping. Available mappings are: " + ConfigReader.getInstance().getMapping());
-                }           
+                }
         }
         super.beforeCommand(session, request, response);
     }
@@ -93,12 +92,11 @@ public class GhostProxy extends DefaultRemoteProxy {
         RequestType type = identifyRequestType(request);
         if (type == STOP_SESSION) {
         	if (processTestSession(session)) {
-				stopServerForTestSession(session);
-				 if (LOG.isLoggable(Level.INFO)) {
-		                LOG.info(String.format("Counter value after decrementing : %d", counter.decrementAndGet()));
-		            }
-			}
-           
+        	    stopServerForTestSession(session);
+        	    if (LOG.isLoggable(Level.INFO)) {
+        	        LOG.info(String.format("Counter value after decrementing : %d", counter.decrementAndGet()));
+        	    }
+        	}
         }
     }
 
