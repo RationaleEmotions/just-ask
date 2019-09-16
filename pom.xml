@@ -4,7 +4,7 @@
 
     <groupId>com.rationaleemotions</groupId>
     <artifactId>just-ask</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>just-ask</name>
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-server</artifactId>
-            <version>[3.14.0,)</version>
+            <version>3.141.59</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
