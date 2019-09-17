@@ -32,7 +32,7 @@ import static org.openqa.grid.web.servlet.handler.RequestType.STOP_SESSION;
  * and then routing the session traffic to the spawned server.
  */
 public class GhostProxy extends DefaultRemoteProxy {
-    private final AtomicInteger counter = new AtomicInteger(1);
+    private final AtomicInteger counter = new AtomicInteger(0);
 
 
     private interface Marker {

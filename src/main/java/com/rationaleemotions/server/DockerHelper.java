@@ -103,10 +103,20 @@ class DockerHelper {
         }
 
         final HostConfig hostConfig = hostConfigBuilder.build();
-
+        
+        // add environmental variables
+        List<String> envVariables = new ArrayList<>();
+        
+        Map<String, String> map = ConfigReader.getInstance().getEnvironment();
+        if (!map.isEmpty()) {
+        	for (Map.Entry<String, String> entry : map.entrySet()) {
+    			envVariables.add(entry.getKey() + "=" + entry.getValue());
+    		}       	        	
+		}
+        		
         final ContainerConfig containerConfig = ContainerConfig.builder()
             .hostConfig(hostConfig)
-            .image(image).exposedPorts(ConfigReader.getInstance().getDockerImagePort())
+            .image(image).exposedPorts(ConfigReader.getInstance().getDockerImagePort()).env(envVariables)
             .build();
 
         final ContainerCreation creation = getClient().createContainer(containerConfig);
@@ -122,7 +132,7 @@ class DockerHelper {
             LOG.fine(msg);
         }
 
-        if (! containerInfo.state().running()) {
+        if (!containerInfo.state().running()) {
             // Start container
             getClient().startContainer(id);
             if (LOG.isLoggable(Level.FINE)) {
