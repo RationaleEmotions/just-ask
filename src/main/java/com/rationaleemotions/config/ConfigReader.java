@@ -66,6 +66,16 @@ public class ConfigReader {
         }
         return configuration.getDockerImagePort();
     }
+    
+    /**
+     * @return - The environmental variables to pass to container
+     */
+    public Map<String, String> getEnvironment() {
+        if (configuration == null) {
+            return null;
+        }        
+        return configuration.getEnvironment();
+    }
 
     /**
      * @return - The browser to target (target could for e.g., be docker image) mapping.
@@ -77,7 +87,7 @@ public class ConfigReader {
         }
         return mapping;
     }
-
+    
     /**
      * @return - How many number of sessions are to be honoured at any given point in time.
      * This kind of resembles the threshold value after which new session requests would be put into the
@@ -131,6 +141,7 @@ public class ConfigReader {
         private String dockerImagePort;
         private int maxSession;
         private List<MappingInfo> mapping;
+        private Map<String, String> environment;
 
         public String getDockerRestApiUri() {
             return dockerRestApiUri;
@@ -151,6 +162,10 @@ public class ConfigReader {
         public List<MappingInfo> getMapping() {
             return mapping;
         }
+        
+        public Map<String, String> getEnvironment() {	
+            return environment;
+        }
 
         @Override
         public String toString() {
@@ -159,6 +174,7 @@ public class ConfigReader {
                 ", localhost='" + localhost + '\'' +
                 ", dockerImagePort='" + dockerImagePort + '\'' +
                 ", maxSession=" + maxSession +
+                ", environment=" + environment +
                 ", mapping=" + mapping +
                 '}';
         }
