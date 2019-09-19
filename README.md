@@ -61,7 +61,11 @@ you download the uber jar i.e., the jar name that ends with `jar-with-dependenci
       "target": "selenium/standalone-firefox:3.14.0",
       "implementation": "com.rationaleemotions.server.JvmBasedSeleniumServer"
     }
-  ]
+  ],
+  "environment": {
+     "SCREEN_WIDTH": 1280,
+     "SCREEN_HEIGHT": 720
+  }
 }
 ```
 * Start the On-demand Grid using the below command (Here the JVM argument `-Dconfig.file` is used to specify the 
@@ -90,6 +94,7 @@ after which new test session requests will be queued.
 represents the name of the docker image that is capable of supporting the respective `browser`. The `target` may not 
 be relevant to all `implementation` values (for e.g., the `target` is currently relevant ONLY for `docker` based 
 on-demand nodes.)
+* `environment` - Represents environmental variable key-value pairs to be passed to docker container
 
 ### Understanding the relevance of `implementation`
 **just-ask** currently supports two implementation flavors :
