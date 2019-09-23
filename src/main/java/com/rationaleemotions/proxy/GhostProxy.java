@@ -43,7 +43,7 @@ public class GhostProxy extends DefaultRemoteProxy {
 
     public GhostProxy(RegistrationRequest request, GridRegistry registry) {
         super(request, registry);
-        LOG.info("Maximum sessions supported : " + ConfigReader.getInstance().getMaxSession());
+        LOG.info("Maximum sessions supported: " + ConfigReader.getInstance().getMaxSession());
     }
 
     @Override
@@ -72,6 +72,22 @@ public class GhostProxy extends DefaultRemoteProxy {
         }
         return null;
     }
+    
+    @Override
+    public void beforeRelease(TestSession session) {
+        // release the resources remotely if the remote started a browser.
+        if (session.getExternalKey() == null) {
+          return;
+        }
+        boolean ok = session.sendDeleteSessionRequest();
+        if (ok && processTestSession(session)) {
+        	stopServerForTestSession(session);
+        	LOG.info(String.format("Counter value after decrementing: %d", counter.decrementAndGet()));
+		}
+        if (!ok) {
+          LOG.warning("Error releasing the resources on timeout for session " + session);
+        }
+      }
 
     @Override
     public void beforeCommand(TestSession session, HttpServletRequest request, HttpServletResponse response) {
@@ -94,7 +110,7 @@ public class GhostProxy extends DefaultRemoteProxy {
         	if (processTestSession(session)) {
         	    stopServerForTestSession(session);
         	    if (LOG.isLoggable(Level.INFO)) {
-        	        LOG.info(String.format("Counter value after decrementing : %d", counter.decrementAndGet()));
+        	        LOG.info(String.format("Counter value after decrementing: %d", counter.decrementAndGet()));
         	    }
         	}
         }
@@ -128,8 +144,8 @@ public class GhostProxy extends DefaultRemoteProxy {
             servers.put(key, server);
             ((ProxiedTestSlot) session.getSlot()).setRemoteURL(url);
             if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(String.format("Forwarding session to :%s", session.getSlot().getRemoteURL()));
-                LOG.info(String.format("Counter value after incrementing : %d", counter.incrementAndGet()));
+                LOG.info(String.format("Forwarding session to: %s", session.getSlot().getRemoteURL()));
+                LOG.info(String.format("Counter value after incrementing: %d", counter.incrementAndGet()));
             }
         } catch (Exception e) {
             throw new GridException(e.getMessage(), e);
