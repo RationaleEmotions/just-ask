@@ -99,6 +99,16 @@ public class ConfigReader {
         }
         return configuration.getMaxSession();
     }
+    
+    /**
+     * @return - The volume to mount to a container
+     */
+    public String getVolume() {
+        if (configuration == null) {
+            return "";
+        }
+        return configuration.getVolume();
+    }
 
     private static class ReaderInstance {
         static final ConfigReader instance = new ConfigReader();
@@ -140,6 +150,7 @@ public class ConfigReader {
         private String localhost;
         private String dockerImagePort;
         private int maxSession;
+        private String volume;
         private List<MappingInfo> mapping;
         private Map<String, String> environment;
 
@@ -158,6 +169,10 @@ public class ConfigReader {
         public int getMaxSession() {
             return maxSession;
         }
+        
+        public String getVolume() {
+            return volume;
+        }
 
         public List<MappingInfo> getMapping() {
             return mapping;
@@ -174,6 +189,7 @@ public class ConfigReader {
                 ", localhost='" + localhost + '\'' +
                 ", dockerImagePort='" + dockerImagePort + '\'' +
                 ", maxSession=" + maxSession +
+                ", volume=" + volume +
                 ", environment=" + environment +
                 ", mapping=" + mapping +
                 '}';
