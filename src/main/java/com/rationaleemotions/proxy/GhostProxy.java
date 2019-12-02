@@ -52,14 +52,17 @@ public class GhostProxy extends DefaultRemoteProxy {
 
     @Override
     public TestSession getNewSession(Map<String, Object> requestedCapability) {
+    	
+    	 LOG.fine(String.format("Trying to create a new session on node %s", this));
+
+        if (!hasCapability(requestedCapability)) {
+        	LOG.fine("Node " + this + " has no matching capability");
+          return null;
+        }
 
         if (counter.get() > ConfigReader.getInstance().getMaxSession()) {
             LOG.info("Waiting for remote nodes to be available");
             return null;
-        }
-
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine(String.format("Trying to create a new session on node %s", this));
         }
 
         // any slot left for the given app ?
@@ -106,11 +109,6 @@ public class GhostProxy extends DefaultRemoteProxy {
         	    stopServerForTestSession(session);
         	}
       }
-
-    @Override
-    public boolean hasCapability(Map<String, Object> requestedCapability) {
-        return true;
-    }
 
     @Override
     public Map<String, Object> getProxyStatus() {
