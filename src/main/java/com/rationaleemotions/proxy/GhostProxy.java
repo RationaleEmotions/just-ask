@@ -25,7 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.openqa.grid.web.servlet.handler.RequestType.START_SESSION;
-import static org.openqa.grid.web.servlet.handler.RequestType.STOP_SESSION;
 
 /**
  * Represents a simple {@link DefaultRemoteProxy} implementation that relies on spinning off a server
@@ -82,7 +81,6 @@ public class GhostProxy extends DefaultRemoteProxy {
         boolean ok = session.sendDeleteSessionRequest();
         if (ok && processTestSession(session)) {
         	stopServerForTestSession(session);
-        	LOG.info(String.format("Counter value after decrementing: %d", counter.decrementAndGet()));
 		}
         if (!ok) {
           LOG.warning("Error releasing the resources on timeout for session " + session);
@@ -103,18 +101,11 @@ public class GhostProxy extends DefaultRemoteProxy {
     }
 
     @Override
-    public void afterCommand(TestSession session, HttpServletRequest request, HttpServletResponse response) {
-        super.afterCommand(session, request, response);
-        RequestType type = identifyRequestType(request);
-        if (type == STOP_SESSION) {
+    public void afterSession(TestSession session) {
         	if (processTestSession(session)) {
         	    stopServerForTestSession(session);
-        	    if (LOG.isLoggable(Level.INFO)) {
-        	        LOG.info(String.format("Counter value after decrementing: %d", counter.decrementAndGet()));
-        	    }
         	}
-        }
-    }
+      }
 
     @Override
     public boolean hasCapability(Map<String, Object> requestedCapability) {
@@ -159,6 +150,7 @@ public class GhostProxy extends DefaultRemoteProxy {
         if (localServer != null) {
             localServer.shutdown();
             servers.remove(key);
+            LOG.info(String.format("Counter value after decrementing: %d", counter.decrementAndGet()));
         }
     }
 
