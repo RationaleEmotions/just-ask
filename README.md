@@ -49,6 +49,7 @@ you download the uber jar i.e., the jar name that ends with `jar-with-dependenci
   "dockerRestApiUri": "http://192.168.43.130:2375",
   "localhost": "0.0.0.0",
   "dockerImagePort": "4444",
+  "volume": "/dev/shm:/dev/shm",
   "maxSession": 5,
   "mapping": [
     {
@@ -88,6 +89,7 @@ The meaning of each of the attributes of the JSON file is as below :
 * `localhost` - Represents the hostname of the machine on which the Docker Daemon is running on (Its safe to leave 
 its value as `0.0.0.0` )
 * `dockerImagePort` - Represents the port number that is exposed inside the docker container.
+* `volume` - Represents a volume to be mounted. Can be left empty.
 * `maxSession` - Represents the maximum number of concurrent sessions that can be supported by the On-demand Hub 
 after which new test session requests will be queued.
 * `mapping` - Represents a set of key-value pairs wherein `browser` represents the `browser flavor` and `target` 
