@@ -20,7 +20,7 @@ but when it comes to scaling the Grid infrastructure this also does not help a l
 As and when tests make hit the hub, a node is spun off, the test is routed to the node and after usage the node is 
 cleaned up. The on-demand node can be a docker container that hosts a selenium node.
 
-##Pre-requisites
+## Pre-requisites
  
  **just-ask** requires : 
  
