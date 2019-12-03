@@ -99,9 +99,12 @@ class DockerHelper {
         }
 
         HostConfig.Builder hostConfigBuilder = HostConfig.builder()
-            .binds(ConfigReader.getInstance().getVolume())
             .portBindings(portBindings)
             .privileged(isPrivileged);
+        String volume = ConfigReader.getInstance().getVolume();
+        if (volume != null && !volume.isEmpty()) {
+            hostConfigBuilder = hostConfigBuilder.binds(ConfigReader.getInstance().getVolume());
+        }
         if (!deviceList.isEmpty()) {
             hostConfigBuilder = hostConfigBuilder.devices(deviceList);
         }

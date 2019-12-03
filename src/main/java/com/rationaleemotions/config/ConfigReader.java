@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,9 +72,6 @@ public class ConfigReader {
      * @return - The environmental variables to pass to container
      */
     public Map<String, String> getEnvironment() {
-        if (configuration == null) {
-            return new HashMap<>();
-        }        
         return configuration.getEnvironment();
     }
 
@@ -151,8 +149,8 @@ public class ConfigReader {
         private String dockerImagePort;
         private int maxSession;
         private String volume;
-        private List<MappingInfo> mapping;
-        private Map<String, String> environment;
+        private List<MappingInfo> mapping = new ArrayList<>();
+        private Map<String, String> environment = new HashMap<>();
 
         public String getDockerRestApiUri() {
             return dockerRestApiUri;
