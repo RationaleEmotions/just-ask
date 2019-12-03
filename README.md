@@ -117,7 +117,7 @@ consume it, you merely need to add the following as a dependency in your pom fil
 <dependency>
     <groupId>com.rationaleemotions</groupId>
     <artifactId>just-ask</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
