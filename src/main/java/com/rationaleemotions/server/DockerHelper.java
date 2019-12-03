@@ -10,6 +10,7 @@ import com.spotify.docker.client.LoggingBuildHandler;
 import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.*;
+import java.util.stream.Collectors;
 import org.openqa.selenium.net.PortProber;
 
 import java.util.*;
@@ -105,15 +106,11 @@ class DockerHelper {
         final HostConfig hostConfig = hostConfigBuilder.build();
         
         // add environmental variables
-        List<String> envVariables = new ArrayList<>();
-        
-        Map<String, String> map = ConfigReader.getInstance().getEnvironment();
-        if (!map.isEmpty()) {
-        	for (Map.Entry<String, String> entry : map.entrySet()) {
-    			envVariables.add(entry.getKey() + "=" + entry.getValue());
-    		}       	        	
-		}
-        		
+        List<String> envVariables = ConfigReader.getInstance().getEnvironment()
+            .entrySet().stream()
+            .map(entry -> entry.getKey() + "=" + entry.getValue())
+            .collect(Collectors.toList());
+
         final ContainerConfig containerConfig = ContainerConfig.builder()
             .hostConfig(hostConfig)
             .image(image).exposedPorts(ConfigReader.getInstance().getDockerImagePort()).env(envVariables)

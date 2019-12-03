@@ -72,7 +72,7 @@ public class ConfigReader {
      */
     public Map<String, String> getEnvironment() {
         if (configuration == null) {
-            return null;
+            return new HashMap<>();
         }        
         return configuration.getEnvironment();
     }
