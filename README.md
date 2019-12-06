@@ -82,6 +82,15 @@ org.openqa.grid.selenium.GridLauncherV3 -role hub -servlets com.rationaleemotion
 
 * That's about it. The On-demand Grid is now ready for use.
 
+* To run tests against the On-demand Grid you just instantiate a `RemoteWebDriver` instance and then work with it.
+
+    Here's a sample that shows using chrome browser:
+
+```java
+URL url = new URL("http://localhost:4444/wd/hub");
+RemoteWebDriver driver = new RemoteWebDriver(url, DesiredCapabilities.chrome());
+```
+
 ## Understanding the JSON configuration file.
 The meaning of each of the attributes of the JSON file is as below :
 
